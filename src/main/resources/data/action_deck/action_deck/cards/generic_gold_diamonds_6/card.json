@@ -1,0 +1,19 @@
+{
+  "name": "6 of Diamonds",
+  "description": "Auto-generated card definition.",
+  "deck": "action_deck:generic_gold",
+  "rank": {
+    "id": "6",
+    "display": "6"
+  },
+  "suit": {
+    "id": "diamonds",
+    "display": "Diamonds",
+    "symbol": "♦"
+  },
+  "textures": {
+    "front": "action_deck:item/card_generic_gold_diamonds_6",
+    "back": "action_deck:item/card_generic_gold_back"
+  },
+  "item_model": "action_deck:item/card"
+}

@@ -1,0 +1,19 @@
+{
+  "name": "9 of Clubs",
+  "description": "Auto-generated card definition.",
+  "deck": "action_deck:generic_gold",
+  "rank": {
+    "id": "9",
+    "display": "9"
+  },
+  "suit": {
+    "id": "club",
+    "display": "Clubs",
+    "symbol": "♣"
+  },
+  "textures": {
+    "front": "action_deck:item/card_generic_gold_club_9",
+    "back": "action_deck:item/card_generic_gold_back"
+  },
+  "item_model": "action_deck:item/card"
+}

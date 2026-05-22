@@ -1,0 +1,8 @@
+{
+  "name": "Invalid Data",
+  "description": "A small test deck for fallback and placeholder card data.",
+  "default_back": "action_deck:item/card_generic_gold_back",
+  "cards": [
+    "action_deck:invalid_data_card_table"
+  ]
+}

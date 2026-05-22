@@ -1,0 +1,19 @@
+{
+  "name": "Joker",
+  "description": "Auto-generated card definition.",
+  "deck": "action_deck:generic_gold_big",
+  "rank": {
+    "id": "big_joker",
+    "display": "Big Joker"
+  },
+  "suit": {
+    "id": "special",
+    "display": "Special",
+    "symbol": "*"
+  },
+  "textures": {
+    "front": "action_deck:item/card_generic_gold_big_joker",
+    "back": "action_deck:item/card_generic_gold_back"
+  },
+  "item_model": "action_deck:item/card"
+}

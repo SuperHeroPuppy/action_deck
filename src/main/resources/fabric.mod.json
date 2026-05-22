@@ -1,0 +1,29 @@
+{
+  "schemaVersion": 1,
+  "id": "action_deck",
+  "version": "${version}",
+  "name": "Action Deck",
+  "description": "A Minecraft mod that adds action deck mechanics.",
+  "authors": ["SupersNetwork"],
+  "contact": {
+    "homepage": "https://supersnetwork.net",
+    "sources": "https://github.com/SupersNetwork/action_deck"
+  },
+  "license": "MIT",
+  "icon": "assets/action_deck/icon.png",
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "net.supersnetwork.actiondeck.ActionDeck"
+    ],
+    "client": [
+      "net.supersnetwork.actiondeck.client.ActionDeckClient"
+    ]
+  },
+  "mixins": [],
+  "depends": {
+    "fabricloader": ">=0.15",
+    "fabric-api": "*",
+    "minecraft": "~1.20.1"
+  }
+}

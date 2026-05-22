@@ -1,0 +1,20 @@
+{
+  "variants": {
+    "level=0": { "model": "action_deck:item/deck_stack" },
+    "level=1": { "model": "action_deck:item/deck_stack" },
+    "level=2": { "model": "action_deck:item/deck_stack" },
+    "level=3": { "model": "action_deck:item/deck_stack" },
+    "level=4": { "model": "action_deck:item/deck_stack" },
+    "level=5": { "model": "action_deck:item/deck_stack" },
+    "level=6": { "model": "action_deck:item/deck_stack" },
+    "level=7": { "model": "action_deck:item/deck_stack" },
+    "level=8": { "model": "action_deck:item/deck_stack" },
+    "level=9": { "model": "action_deck:item/deck_stack" },
+    "level=10": { "model": "action_deck:item/deck_stack" },
+    "level=11": { "model": "action_deck:item/deck_stack" },
+    "level=12": { "model": "action_deck:item/deck_stack" },
+    "level=13": { "model": "action_deck:item/deck_stack" },
+    "level=14": { "model": "action_deck:item/deck_stack" },
+    "level=15": { "model": "action_deck:item/deck_stack" }
+  }
+}

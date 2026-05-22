@@ -1,0 +1,19 @@
+{
+  "name": "3 of Hearts",
+  "description": "Auto-generated card definition.",
+  "deck": "action_deck:generic_gold",
+  "rank": {
+    "id": "3",
+    "display": "3"
+  },
+  "suit": {
+    "id": "heart",
+    "display": "Hearts",
+    "symbol": "♥"
+  },
+  "textures": {
+    "front": "action_deck:item/card_generic_gold_heart_3",
+    "back": "action_deck:item/card_generic_gold_back"
+  },
+  "item_model": "action_deck:item/card"
+}

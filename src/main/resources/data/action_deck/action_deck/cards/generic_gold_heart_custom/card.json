@@ -1,0 +1,19 @@
+{
+  "name": "Custom of Hearts",
+  "description": "Auto-generated card definition.",
+  "deck": "action_deck:generic_gold",
+  "rank": {
+    "id": "custom",
+    "display": "Custom"
+  },
+  "suit": {
+    "id": "heart",
+    "display": "Hearts",
+    "symbol": "♥"
+  },
+  "textures": {
+    "front": "action_deck:item/card_generic_gold_heart_custom",
+    "back": "action_deck:item/card_generic_gold_back"
+  },
+  "item_model": "action_deck:item/card"
+}

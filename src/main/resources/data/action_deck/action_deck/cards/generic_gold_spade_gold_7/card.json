@@ -12,7 +12,7 @@
     "symbol": "♠"
   },
   "textures": {
-    "front": "action_deck:item/card_generic_gold_spade_7",
+    "front": "action_deck:item/card_generic_gold_spade_gold_7",
     "back": "action_deck:item/card_generic_gold_back"
   },
   "item_model": "action_deck:item/card"

@@ -60,9 +60,23 @@
     "action_deck:generic_gold_spade_custom",
     "action_deck:generic_gold_spade_jack",
     "action_deck:generic_gold_spade_king",
-    "action_deck:generic_gold_spade_queen"
-    "action_deck:generic_gold_custom_1",
-    "action_deck:generic_gold_custom_2",
-    "action_deck:generic_gold_custom_3"
+    "action_deck:generic_gold_spade_queen",
+    "action_deck:generic_gold_spade_gold_10",
+    "action_deck:generic_gold_spade_gold_2",
+    "action_deck:generic_gold_spade_gold_3",
+    "action_deck:generic_gold_spade_gold_4",
+    "action_deck:generic_gold_spade_gold_5",
+    "action_deck:generic_gold_spade_gold_6",
+    "action_deck:generic_gold_spade_gold_7",
+    "action_deck:generic_gold_spade_gold_8",
+    "action_deck:generic_gold_spade_gold_9",
+    "action_deck:generic_gold_spade_gold_ace",
+    "action_deck:generic_gold_spade_gold_custom",
+    "action_deck:generic_gold_spade_gold_jack",
+    "action_deck:generic_gold_spade_gold_king",
+    "action_deck:generic_gold_spade_gold_queen",
+    "action_deck:generic_gold_yazi_pentagram",
+    "action_deck:generic_gold_king_slime",
+    "action_deck:generic_gold_queen_slime"
   ]
 }

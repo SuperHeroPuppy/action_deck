@@ -1,0 +1,19 @@
+{
+  "name": "Yazi Pentagram",
+  "description": "Auto-generated card definition.",
+  "deck": "action_deck:generic_gold",
+  "rank": {
+    "id": "1",
+    "display": "Yazi Pentagram"
+  },
+  "suit": {
+    "id": "special",
+    "display": "Special",
+    "symbol": "*"
+  },
+  "textures": {
+    "front": "action_deck:item/card_generic_gold_yazi_pentagram",
+    "back": "action_deck:item/card_generic_gold_back"
+  },
+  "item_model": "action_deck:item/card"
+}

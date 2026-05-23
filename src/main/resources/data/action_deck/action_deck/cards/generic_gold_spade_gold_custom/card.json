@@ -1,18 +1,18 @@
 {
-  "name": "Custom 3",
+  "name": "Custom of Spades",
   "description": "Auto-generated card definition.",
   "deck": "action_deck:generic_gold",
   "rank": {
-    "id": "3",
-    "display": "Custom 3"
+    "id": "custom",
+    "display": "Custom"
   },
   "suit": {
-    "id": "special",
-    "display": "Special",
-    "symbol": "*"
+    "id": "spade",
+    "display": "Spades",
+    "symbol": "♠"
   },
   "textures": {
-    "front": "action_deck:item/card_generic_gold_custom_3",
+    "front": "action_deck:item/card_generic_gold_spade_custom",
     "back": "action_deck:item/card_generic_gold_back"
   },
   "item_model": "action_deck:item/card"

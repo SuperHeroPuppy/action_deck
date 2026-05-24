@@ -1,7 +1,7 @@
 {
   "name": "Joker",
   "description": "Auto-generated card definition.",
-  "deck": "action_deck:generic_gold_big",
+  "deck": "action_deck:generic_gold",
   "rank": {
     "id": "big_joker",
     "display": "Big Joker"

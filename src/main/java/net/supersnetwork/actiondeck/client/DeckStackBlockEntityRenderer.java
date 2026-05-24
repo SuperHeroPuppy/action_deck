@@ -27,7 +27,7 @@ public class DeckStackBlockEntityRenderer implements BlockEntityRenderer<DeckSta
 
 		matrices.push();
 		matrices.translate(0.5, 0.0, 0.5);
-		matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(180.0f + rotationDegrees));
+		matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(180.0f - rotationDegrees));
 
 		for (int i = 0; i < visibleCards; i++) {
 			int cardIndex = faceDown ? visibleCards - 1 - i : cards.size() - visibleCards + i;

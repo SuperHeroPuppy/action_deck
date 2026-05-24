@@ -17,6 +17,10 @@ public final class CardRenderHelper {
 	private CardRenderHelper() {
 	}
 
+	public static void renderDefaultHandCard(MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light, int overlay) {
+		renderCard(matrices, vertexConsumers, null, light, overlay, HAND_CARD, false);
+	}
+
 	public static void renderHandCard(MatrixStack matrices, VertexConsumerProvider vertexConsumers, Identifier cardId, int light, int overlay) {
 		renderCard(matrices, vertexConsumers, cardId, light, overlay, HAND_CARD, false);
 	}

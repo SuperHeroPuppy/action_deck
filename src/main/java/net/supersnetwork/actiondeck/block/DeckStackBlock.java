@@ -166,7 +166,7 @@ public class DeckStackBlock extends Block implements BlockEntityProvider {
 	}
 
 	private static VoxelShape createShape(int height, int rotation) {
-		double angle = Math.toRadians(rotation * 22.5);
+		double angle = Math.toRadians(-rotation * 22.5);
 		double cos = Math.cos(angle);
 		double sin = Math.sin(angle);
 		double maxY = height / 16.0;

@@ -1,16 +1,27 @@
 package net.supersnetwork.actiondeck.item;
 
 import net.minecraft.client.item.TooltipContext;
+import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.ItemUsageContext;
+import net.minecraft.item.ItemPlacementContext;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
+import net.minecraft.util.ActionResult;
 import net.minecraft.util.Formatting;
+import net.minecraft.util.Hand;
+import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.Identifier;
 import net.minecraft.world.World;
+import net.supersnetwork.actiondeck.block.ActionDeckBlocks;
+import net.supersnetwork.actiondeck.block.DeckStackBlockEntity;
 import net.supersnetwork.actiondeck.data.ActionDeckCardDefinitions;
+import net.supersnetwork.actiondeck.data.ActionDeckDeckDefinitions;
 import net.supersnetwork.actiondeck.data.CardDefinition;
 
+import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 
@@ -57,20 +68,20 @@ public class Card extends Item {
 			definition.description().ifPresent(description -> tooltip.add(description.copy().formatted(Formatting.GRAY)));
 			tooltip.add(Text.literal("Deck: ")
 				.formatted(Formatting.GRAY)
-				.append(Text.literal(definition.deck().toString()).formatted(Formatting.GOLD)));
+				.append(getFormattedDeckText(definition.deck())));
 			tooltip.add(Text.literal("Rank: ")
 				.formatted(Formatting.GRAY)
 				.append(definition.rank().display().copy().formatted(Formatting.WHITE)));
 			tooltip.add(Text.literal("Suit: ")
 				.formatted(Formatting.GRAY)
-				.append(definition.suit().display().copy().formatted(Formatting.WHITE)));
+				.append(getFormattedSuitText(definition)));
 		});
 
 		String deck = getDeckName(nbt);
 		if (deck != null) {
 			tooltip.add(Text.literal("Deck: ")
 				.formatted(Formatting.GRAY)
-				.append(Text.literal(toTitleCase(deck)).formatted(Formatting.GOLD)));
+				.append(getFormattedDeckText(deck)));
 		}
 
 		if (hasCardValue(nbt)) {
@@ -86,6 +97,39 @@ public class Card extends Item {
 				.formatted(Formatting.GRAY)
 				.append(Text.literal(suit.symbol + " " + suit.name).formatted(suit.formatting)));
 		}
+	}
+
+	@Override
+	public ActionResult useOnBlock(ItemUsageContext context) {
+		if (context.getHand() != Hand.MAIN_HAND || context.getPlayer() == null) {
+			return ActionResult.PASS;
+		}
+
+		if (context.getWorld().getBlockState(context.getBlockPos()).isOf(ActionDeckBlocks.DECK_STACK)) {
+			return ActionResult.PASS;
+		}
+
+		Optional<Identifier> cardId = getCardId(context.getStack());
+		if (cardId.isEmpty()) {
+			return ActionResult.PASS;
+		}
+
+		ItemStack deckStack = new ItemStack(ActionDeckBlocks.DECK_STACK);
+		DeckStackBlockEntity.writeCardsToStack(deckStack, List.of(cardId.get()), false);
+		ActionResult result = ((BlockItem) ActionDeckBlocks.DECK_STACK.asItem()).place(
+			new ItemPlacementContext(
+				context.getPlayer(),
+				context.getHand(),
+				deckStack,
+				new BlockHitResult(context.getHitPos(), context.getSide(), context.getBlockPos(), context.hitsInsideBlock())
+			)
+		);
+
+		if (result.isAccepted() && !context.getWorld().isClient && !context.getPlayer().getAbilities().creativeMode) {
+			context.getStack().decrement(1);
+		}
+
+		return result;
 	}
 
 	public static Optional<CardDefinition> getDefinition(NbtCompound nbt) {
@@ -165,8 +209,31 @@ public class Card extends Item {
 			.formatted(suit.formatting);
 	}
 
+	private static Text getFormattedDeckText(Identifier deckId) {
+		MutableText deckText = Text.literal(toTitleCase(deckId.getNamespace()) + ": ")
+			.formatted(Formatting.GOLD);
+		Text deckName = ActionDeckDeckDefinitions.get(deckId)
+			.map(deckDefinition -> deckDefinition.name().copy())
+			.orElse(Text.literal(toTitleCase(deckId.getPath())));
+		return deckText.append(deckName.copy().formatted(Formatting.GOLD));
+	}
+
+	private static Text getFormattedDeckText(String deckValue) {
+		try {
+			return getFormattedDeckText(new Identifier(deckValue));
+		} catch (Exception ignored) {
+			return Text.literal(toTitleCase(deckValue)).formatted(Formatting.GOLD);
+		}
+	}
+
+	private static Text getFormattedSuitText(CardDefinition definition) {
+		MutableText suitText = definition.suit().display().copy().formatted(Formatting.WHITE);
+		definition.suit().symbol().ifPresent(symbol -> suitText.append(Text.literal(" " + symbol).formatted(Formatting.WHITE)));
+		return suitText;
+	}
+
 	private static String toTitleCase(String value) {
-		String[] words = value.toLowerCase(Locale.ROOT).split("[_\\s]+");
+		String[] words = value.toLowerCase(Locale.ROOT).split("[_\\-\\s]+");
 		StringBuilder title = new StringBuilder();
 		for (String word : words) {
 			if (word.isEmpty()) {

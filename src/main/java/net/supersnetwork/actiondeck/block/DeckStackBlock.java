@@ -14,6 +14,7 @@ import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.state.StateManager;
 import net.minecraft.state.property.IntProperty;
+import net.minecraft.state.property.Properties;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
 import net.minecraft.util.ItemScatterer;
@@ -29,10 +30,14 @@ import net.supersnetwork.actiondeck.item.Card;
 
 public class DeckStackBlock extends Block implements BlockEntityProvider {
 	public static final IntProperty LEVEL = IntProperty.of("level", 0, 16);
+	public static final IntProperty ROTATION = Properties.ROTATION;
+	private static final double HALF_WIDTH = 5.0 / 16.0;
+	private static final double HALF_LENGTH = 7.0 / 16.0;
+	private static final VoxelShape[][] SHAPES = createShapes();
 
 	public DeckStackBlock(Settings settings) {
 		super(settings);
-		setDefaultState(getStateManager().getDefaultState().with(LEVEL, 0));
+		setDefaultState(getStateManager().getDefaultState().with(LEVEL, 0).with(ROTATION, 0));
 	}
 
 	@Override
@@ -47,19 +52,24 @@ public class DeckStackBlock extends Block implements BlockEntityProvider {
 
 	@Override
 	protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {
-		builder.add(LEVEL);
+		builder.add(LEVEL, ROTATION);
 	}
 
 	@Override
 	public BlockState getPlacementState(ItemPlacementContext ctx) {
 		int size = DeckStackBlockEntity.readCardsFromStack(ctx.getStack()).size();
-		return getDefaultState().with(LEVEL, getLevel(size));
+		return getDefaultState()
+			.with(LEVEL, getLevel(size))
+			.with(ROTATION, getPlacementRotation(ctx));
 	}
 
 	@Override
 	public void onPlaced(World world, BlockPos pos, BlockState state, net.minecraft.entity.LivingEntity placer, ItemStack itemStack) {
 		if (world.getBlockEntity(pos) instanceof DeckStackBlockEntity deck) {
-			deck.addCards(DeckStackBlockEntity.readCardsFromStack(itemStack));
+			deck.setDeck(
+				DeckStackBlockEntity.readCardsFromStack(itemStack),
+				DeckStackBlockEntity.isFaceDown(itemStack)
+			);
 			updateLevel(world, pos, state, deck.size());
 		}
 	}
@@ -75,6 +85,9 @@ public class DeckStackBlock extends Block implements BlockEntityProvider {
 
 		ItemStack held = player.getStackInHand(hand);
 		if (DeckStackBlockEntity.isCard(held)) {
+			if (deck.isFaceDown()) {
+				return ActionResult.FAIL;
+			}
 			if (!world.isClient) {
 				Card.getCardId(held).ifPresent(deck::addCard);
 				if (!player.getAbilities().creativeMode) {
@@ -95,7 +108,7 @@ public class DeckStackBlock extends Block implements BlockEntityProvider {
 		}
 
 		if (held.isEmpty() && !world.isClient) {
-			ItemStack card = deck.popTopCard();
+			ItemStack card = deck.popExposedCard();
 			if (!card.isEmpty()) {
 				if (!player.getInventory().insertStack(card)) {
 					ItemScatterer.spawn(world, pos.getX() + 0.5, pos.getY() + 0.25, pos.getZ() + 0.5, card);
@@ -125,12 +138,57 @@ public class DeckStackBlock extends Block implements BlockEntityProvider {
 
 	@Override
 	public VoxelShape getOutlineShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
-		int height = Math.max(1, state.get(LEVEL));
-		return VoxelShapes.cuboid(0.1875, 0.0, 0.0625, 0.8125, height / 16.0, 0.9375);
+		return SHAPES[Math.max(1, state.get(LEVEL))][state.get(ROTATION)];
+	}
+
+	@Override
+	public VoxelShape getCollisionShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
+		return SHAPES[Math.max(1, state.get(LEVEL))][state.get(ROTATION)];
 	}
 
 	public static int getLevel(int cardCount) {
 		return cardCount <= 0 ? 0 : Math.min(16, cardCount);
+	}
+
+	private static int getPlacementRotation(ItemPlacementContext ctx) {
+		return Math.floorMod(Math.round(ctx.getPlayerYaw() * 16.0f / 360.0f), 16);
+	}
+
+	private static VoxelShape[][] createShapes() {
+		VoxelShape[][] shapes = new VoxelShape[17][16];
+		for (int level = 0; level < shapes.length; level++) {
+			int height = Math.max(1, level);
+			for (int rotation = 0; rotation < shapes[level].length; rotation++) {
+				shapes[level][rotation] = createShape(height, rotation);
+			}
+		}
+		return shapes;
+	}
+
+	private static VoxelShape createShape(int height, int rotation) {
+		double angle = Math.toRadians(rotation * 22.5);
+		double cos = Math.cos(angle);
+		double sin = Math.sin(angle);
+		double maxY = height / 16.0;
+		VoxelShape shape = VoxelShapes.empty();
+
+		for (int x = 0; x < 16; x++) {
+			for (int z = 0; z < 16; z++) {
+				double centerX = (x + 0.5) / 16.0 - 0.5;
+				double centerZ = (z + 0.5) / 16.0 - 0.5;
+				double localX = centerX * cos + centerZ * sin;
+				double localZ = -centerX * sin + centerZ * cos;
+
+				if (Math.abs(localX) <= HALF_WIDTH && Math.abs(localZ) <= HALF_LENGTH) {
+					shape = VoxelShapes.union(
+						shape,
+						VoxelShapes.cuboid(x / 16.0, 0.0, z / 16.0, (x + 1) / 16.0, maxY, (z + 1) / 16.0)
+					);
+				}
+			}
+		}
+
+		return shape;
 	}
 
 	private static void updateLevel(World world, BlockPos pos, BlockState state, int cardCount) {

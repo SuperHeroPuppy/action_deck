@@ -28,7 +28,7 @@ import net.minecraft.world.WorldAccess;
 import net.supersnetwork.actiondeck.item.Card;
 
 public class DeckStackBlock extends Block implements BlockEntityProvider {
-	public static final IntProperty LEVEL = IntProperty.of("level", 0, 15);
+	public static final IntProperty LEVEL = IntProperty.of("level", 0, 16);
 
 	public DeckStackBlock(Settings settings) {
 		super(settings);
@@ -130,7 +130,7 @@ public class DeckStackBlock extends Block implements BlockEntityProvider {
 	}
 
 	public static int getLevel(int cardCount) {
-		return cardCount <= 0 ? 0 : Math.min(15, cardCount);
+		return cardCount <= 0 ? 0 : Math.min(16, cardCount);
 	}
 
 	private static void updateLevel(World world, BlockPos pos, BlockState state, int cardCount) {

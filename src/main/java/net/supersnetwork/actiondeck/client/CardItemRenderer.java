@@ -10,13 +10,17 @@ import net.supersnetwork.actiondeck.item.Card;
 
 public class CardItemRenderer {
 	public void render(ItemStack stack, ModelTransformationMode mode, MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light, int overlay) {
-		Identifier cardId = Card.getCardId(stack).orElse(ActionDeckClientSetup.FALLBACK_CARD_ID);
+		Identifier cardId = Card.getCardId(stack).orElse(null);
 
 		matrices.push();
 		matrices.translate(0.5, 0.5, 0.5);
 		applyDisplayTransform(mode, matrices);
 		matrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees(90.0f));
-		CardRenderHelper.renderHandCard(matrices, vertexConsumers, cardId, light, overlay);
+		if (cardId == null) {
+			CardRenderHelper.renderDefaultHandCard(matrices, vertexConsumers, light, overlay);
+		} else {
+			CardRenderHelper.renderHandCard(matrices, vertexConsumers, cardId, light, overlay);
+		}
 		matrices.pop();
 	}
 

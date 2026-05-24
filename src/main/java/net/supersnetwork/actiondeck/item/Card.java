@@ -1,16 +1,25 @@
 package net.supersnetwork.actiondeck.item;
 
 import net.minecraft.client.item.TooltipContext;
+import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.ItemUsageContext;
+import net.minecraft.item.ItemPlacementContext;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.text.Text;
+import net.minecraft.util.ActionResult;
 import net.minecraft.util.Formatting;
+import net.minecraft.util.Hand;
+import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.Identifier;
 import net.minecraft.world.World;
+import net.supersnetwork.actiondeck.block.ActionDeckBlocks;
+import net.supersnetwork.actiondeck.block.DeckStackBlockEntity;
 import net.supersnetwork.actiondeck.data.ActionDeckCardDefinitions;
 import net.supersnetwork.actiondeck.data.CardDefinition;
 
+import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 
@@ -86,6 +95,39 @@ public class Card extends Item {
 				.formatted(Formatting.GRAY)
 				.append(Text.literal(suit.symbol + " " + suit.name).formatted(suit.formatting)));
 		}
+	}
+
+	@Override
+	public ActionResult useOnBlock(ItemUsageContext context) {
+		if (context.getHand() != Hand.MAIN_HAND || context.getPlayer() == null) {
+			return ActionResult.PASS;
+		}
+
+		if (context.getWorld().getBlockState(context.getBlockPos()).isOf(ActionDeckBlocks.DECK_STACK)) {
+			return ActionResult.PASS;
+		}
+
+		Optional<Identifier> cardId = getCardId(context.getStack());
+		if (cardId.isEmpty()) {
+			return ActionResult.PASS;
+		}
+
+		ItemStack deckStack = new ItemStack(ActionDeckBlocks.DECK_STACK);
+		DeckStackBlockEntity.writeCardsToStack(deckStack, List.of(cardId.get()), false);
+		ActionResult result = ((BlockItem) ActionDeckBlocks.DECK_STACK.asItem()).place(
+			new ItemPlacementContext(
+				context.getPlayer(),
+				context.getHand(),
+				deckStack,
+				new BlockHitResult(context.getHitPos(), context.getSide(), context.getBlockPos(), context.hitsInsideBlock())
+			)
+		);
+
+		if (result.isAccepted() && !context.getWorld().isClient && !context.getPlayer().getAbilities().creativeMode) {
+			context.getStack().decrement(1);
+		}
+
+		return result;
 	}
 
 	public static Optional<CardDefinition> getDefinition(NbtCompound nbt) {

@@ -22,8 +22,10 @@ import java.util.Optional;
 
 public class DeckStackBlockEntity extends BlockEntity {
 	public static final String CARDS_KEY = "Cards";
+	public static final String FACE_DOWN_KEY = "FaceDown";
 
 	private final List<Identifier> cards = new ArrayList<>();
+	private boolean faceDown;
 
 	public DeckStackBlockEntity(BlockPos pos, BlockState state) {
 		super(ActionDeckBlockEntities.DECK_STACK, pos, state);
@@ -37,12 +39,38 @@ public class DeckStackBlockEntity extends BlockEntity {
 		return cards.isEmpty();
 	}
 
+	public boolean isFaceDown() {
+		return faceDown;
+	}
+
 	public List<Identifier> getCards() {
 		return List.copyOf(cards);
 	}
 
 	public Optional<Identifier> getTopCardId() {
-		return cards.isEmpty() ? Optional.empty() : Optional.of(cards.get(cards.size() - 1));
+		return getExposedCardId();
+	}
+
+	public Optional<Identifier> getExposedCardId() {
+		if (cards.isEmpty()) {
+			return Optional.empty();
+		}
+		return Optional.of(faceDown ? cards.get(0) : cards.get(cards.size() - 1));
+	}
+
+	public void setDeck(List<Identifier> cardIds, boolean faceDown) {
+		cards.clear();
+		cards.addAll(cardIds);
+		this.faceDown = faceDown;
+		sync();
+	}
+
+	public void setFaceDown(boolean faceDown) {
+		if (this.faceDown == faceDown) {
+			return;
+		}
+		this.faceDown = faceDown;
+		sync();
 	}
 
 	public void addCard(Identifier cardId) {
@@ -56,11 +84,15 @@ public class DeckStackBlockEntity extends BlockEntity {
 	}
 
 	public ItemStack popTopCard() {
+		return popExposedCard();
+	}
+
+	public ItemStack popExposedCard() {
 		if (cards.isEmpty()) {
 			return ItemStack.EMPTY;
 		}
 
-		Identifier cardId = cards.remove(cards.size() - 1);
+		Identifier cardId = faceDown ? cards.remove(0) : cards.remove(cards.size() - 1);
 		sync();
 		return net.supersnetwork.actiondeck.item.Card.createCard(cardId);
 	}
@@ -72,7 +104,7 @@ public class DeckStackBlockEntity extends BlockEntity {
 
 	public ItemStack createDeckStack() {
 		ItemStack stack = new ItemStack(ActionDeckBlocks.DECK_STACK);
-		writeCardsToStack(stack, cards);
+		writeCardsToStack(stack, cards, faceDown);
 		return stack;
 	}
 
@@ -82,6 +114,11 @@ public class DeckStackBlockEntity extends BlockEntity {
 
 	public static boolean isDeckStack(ItemStack stack) {
 		return stack.isOf(ActionDeckBlocks.DECK_STACK.asItem());
+	}
+
+	public static boolean isFaceDown(ItemStack stack) {
+		NbtCompound nbt = stack.getNbt();
+		return nbt != null && nbt.getBoolean(FACE_DOWN_KEY);
 	}
 
 	public static List<Identifier> readCardsFromStack(ItemStack stack) {
@@ -101,6 +138,10 @@ public class DeckStackBlockEntity extends BlockEntity {
 	}
 
 	public static void writeCardsToStack(ItemStack stack, List<Identifier> cards) {
+		writeCardsToStack(stack, cards, false);
+	}
+
+	public static void writeCardsToStack(ItemStack stack, List<Identifier> cards, boolean faceDown) {
 		NbtCompound nbt = stack.getOrCreateNbt();
 		NbtList list = new NbtList();
 
@@ -109,12 +150,14 @@ public class DeckStackBlockEntity extends BlockEntity {
 		}
 
 		nbt.put(CARDS_KEY, list);
+		nbt.putBoolean(FACE_DOWN_KEY, faceDown);
 	}
 
 	@Override
 	public void readNbt(NbtCompound nbt) {
 		super.readNbt(nbt);
 		cards.clear();
+		faceDown = nbt.getBoolean(FACE_DOWN_KEY);
 
 		NbtList list = nbt.getList(CARDS_KEY, NbtElement.STRING_TYPE);
 		for (int i = 0; i < list.size(); i++) {
@@ -152,6 +195,7 @@ public class DeckStackBlockEntity extends BlockEntity {
 		}
 
 		nbt.put(CARDS_KEY, list);
+		nbt.putBoolean(FACE_DOWN_KEY, faceDown);
 	}
 
 	private static Optional<Identifier> parseIdentifier(String value) {

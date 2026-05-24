@@ -59,7 +59,10 @@ public class DeckStackBlock extends Block implements BlockEntityProvider {
 	@Override
 	public void onPlaced(World world, BlockPos pos, BlockState state, net.minecraft.entity.LivingEntity placer, ItemStack itemStack) {
 		if (world.getBlockEntity(pos) instanceof DeckStackBlockEntity deck) {
-			deck.addCards(DeckStackBlockEntity.readCardsFromStack(itemStack));
+			deck.setDeck(
+				DeckStackBlockEntity.readCardsFromStack(itemStack),
+				DeckStackBlockEntity.isFaceDown(itemStack)
+			);
 			updateLevel(world, pos, state, deck.size());
 		}
 	}
@@ -75,6 +78,9 @@ public class DeckStackBlock extends Block implements BlockEntityProvider {
 
 		ItemStack held = player.getStackInHand(hand);
 		if (DeckStackBlockEntity.isCard(held)) {
+			if (deck.isFaceDown()) {
+				return ActionResult.FAIL;
+			}
 			if (!world.isClient) {
 				Card.getCardId(held).ifPresent(deck::addCard);
 				if (!player.getAbilities().creativeMode) {
@@ -87,6 +93,9 @@ public class DeckStackBlock extends Block implements BlockEntityProvider {
 		}
 
 		if (player.isSneaking() && held.isEmpty()) {
+			if (deck.isFaceDown()) {
+				return ActionResult.FAIL;
+			}
 			if (!world.isClient) {
 				deck.shuffle();
 				world.playSound(null, pos, SoundEvents.ITEM_BOOK_PAGE_TURN, SoundCategory.BLOCKS, 0.8f, 1.2f);
@@ -95,7 +104,7 @@ public class DeckStackBlock extends Block implements BlockEntityProvider {
 		}
 
 		if (held.isEmpty() && !world.isClient) {
-			ItemStack card = deck.popTopCard();
+			ItemStack card = deck.popExposedCard();
 			if (!card.isEmpty()) {
 				if (!player.getInventory().insertStack(card)) {
 					ItemScatterer.spawn(world, pos.getX() + 0.5, pos.getY() + 0.25, pos.getZ() + 0.5, card);

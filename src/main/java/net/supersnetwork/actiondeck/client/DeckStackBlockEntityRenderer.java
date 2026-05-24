@@ -21,16 +21,17 @@ public class DeckStackBlockEntityRenderer implements BlockEntityRenderer<DeckSta
 	public void render(DeckStackBlockEntity entity, float tickDelta, MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light, int overlay) {
 		List<Identifier> cards = entity.getCards();
 		int visibleCards = Math.min(cards.size(), MAX_VISIBLE_CARDS);
+		boolean faceDown = entity.isFaceDown();
 
 		matrices.push();
 		matrices.translate(0.5, 0.0, 0.5);
 		matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(180.0f));
 
 		for (int i = 0; i < visibleCards; i++) {
-			int cardIndex = cards.size() - visibleCards + i;
+			int cardIndex = faceDown ? visibleCards - 1 - i : cards.size() - visibleCards + i;
 			matrices.push();
 			matrices.translate(0.0, i * CARD_SPACING, 0.0);
-			CardRenderHelper.renderStackCard(matrices, vertexConsumers, cards.get(cardIndex), light, overlay);
+			CardRenderHelper.renderStackCard(matrices, vertexConsumers, cards.get(cardIndex), light, overlay, faceDown);
 			matrices.pop();
 		}
 

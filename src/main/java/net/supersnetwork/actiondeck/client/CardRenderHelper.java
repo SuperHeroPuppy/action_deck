@@ -18,28 +18,36 @@ public final class CardRenderHelper {
 	}
 
 	public static void renderDefaultHandCard(MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light, int overlay) {
-		renderCard(matrices, vertexConsumers, null, light, overlay, HAND_CARD, false);
+		renderCard(matrices, vertexConsumers, null, light, overlay, HAND_CARD, false, false);
 	}
 
 	public static void renderHandCard(MatrixStack matrices, VertexConsumerProvider vertexConsumers, Identifier cardId, int light, int overlay) {
-		renderCard(matrices, vertexConsumers, cardId, light, overlay, HAND_CARD, false);
+		renderCard(matrices, vertexConsumers, cardId, light, overlay, HAND_CARD, false, false);
 	}
 
 	public static void renderStackCard(MatrixStack matrices, VertexConsumerProvider vertexConsumers, Identifier cardId, int light, int overlay) {
-		renderCard(matrices, vertexConsumers, cardId, light, overlay, STACK_CARD, true);
+		renderStackCard(matrices, vertexConsumers, cardId, light, overlay, false);
 	}
 
-	private static void renderCard(MatrixStack matrices, VertexConsumerProvider vertexConsumers, Identifier cardId, int light, int overlay, Dimensions dimensions, boolean renderSides) {
+	public static void renderStackCard(MatrixStack matrices, VertexConsumerProvider vertexConsumers, Identifier cardId, int light, int overlay, boolean faceDown) {
+		renderCard(matrices, vertexConsumers, cardId, light, overlay, STACK_CARD, true, faceDown);
+	}
+
+	private static void renderCard(MatrixStack matrices, VertexConsumerProvider vertexConsumers, Identifier cardId, int light, int overlay, Dimensions dimensions, boolean renderSides, boolean faceDown) {
 		CardDefinition definition = ActionDeckCardDefinitions.get(cardId).orElse(null);
 		Identifier front = definition == null ? ActionDeckCardDefinitions.DEFAULT_FRONT_TEXTURE : definition.textures().front();
 		Identifier back = definition == null ? ActionDeckCardDefinitions.DEFAULT_BACK_TEXTURE : definition.textures().back();
 
 		Identifier frontTexture = texturePath(front);
 		Identifier backTexture = texturePath(back);
-		renderHorizontalQuad(matrices, vertexConsumers, backTexture, 0.0f, light, overlay, false, dimensions);
-		renderHorizontalQuad(matrices, vertexConsumers, frontTexture, dimensions.thickness, light, overlay, true, dimensions);
+		Identifier topTexture = faceDown ? backTexture : frontTexture;
+		Identifier bottomTexture = faceDown ? frontTexture : backTexture;
+		Identifier sideTexture = faceDown ? backTexture : frontTexture;
+
+		renderHorizontalQuad(matrices, vertexConsumers, bottomTexture, 0.0f, light, overlay, false, dimensions);
+		renderHorizontalQuad(matrices, vertexConsumers, topTexture, dimensions.thickness, light, overlay, true, dimensions);
 		if (renderSides) {
-			renderSideQuads(matrices, vertexConsumers, frontTexture, light, overlay, dimensions);
+			renderSideQuads(matrices, vertexConsumers, sideTexture, light, overlay, dimensions);
 		}
 	}
 

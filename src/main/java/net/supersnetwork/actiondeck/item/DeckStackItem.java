@@ -20,8 +20,12 @@ public class DeckStackItem extends BlockItem {
 	public void appendTooltip(ItemStack stack, World world, List<Text> tooltip, TooltipContext context) {
 		super.appendTooltip(stack, world, tooltip, context);
 		int cardCount = DeckStackBlockEntity.readCardsFromStack(stack).size();
+		String facing = DeckStackBlockEntity.isFaceDown(stack) ? "down" : "up";
 		tooltip.add(Text.literal("Cards: ")
 			.formatted(Formatting.GRAY)
 			.append(Text.literal(Integer.toString(cardCount)).formatted(Formatting.WHITE)));
+		tooltip.add(Text.literal("Facing: ")
+			.formatted(Formatting.GRAY)
+			.append(Text.literal(facing).formatted(Formatting.WHITE)));
 	}
 }

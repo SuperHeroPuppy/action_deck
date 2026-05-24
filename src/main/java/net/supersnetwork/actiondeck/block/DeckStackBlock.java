@@ -93,9 +93,6 @@ public class DeckStackBlock extends Block implements BlockEntityProvider {
 		}
 
 		if (player.isSneaking() && held.isEmpty()) {
-			if (deck.isFaceDown()) {
-				return ActionResult.FAIL;
-			}
 			if (!world.isClient) {
 				deck.shuffle();
 				world.playSound(null, pos, SoundEvents.ITEM_BOOK_PAGE_TURN, SoundCategory.BLOCKS, 0.8f, 1.2f);

@@ -124,7 +124,7 @@ public class DeckStackBlock extends Block implements BlockEntityProvider {
 	@Override
 	public void onBreak(World world, BlockPos pos, BlockState state, PlayerEntity player) {
 		if (!world.isClient && world.getBlockEntity(pos) instanceof DeckStackBlockEntity deck && !deck.isEmpty()) {
-			ItemStack stack = deck.createDeckStack();
+			ItemStack stack = deck.size() == 1 ? Card.createCard(deck.getCards().get(0)) : deck.createDeckStack();
 			ItemEntity entity = new ItemEntity(world, pos.getX() + 0.5, pos.getY() + 0.25, pos.getZ() + 0.5, stack);
 			world.spawnEntity(entity);
 		}

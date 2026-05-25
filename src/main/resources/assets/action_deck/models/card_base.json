@@ -1,24 +1,208 @@
 {
   "format_version": "1.21.11",
   "credit": "Made with Blockbench",
-  "parent": "block/block",
+  "parent": "minecraft:builtin/entity",
+  "textures": {
+    "back": "action_deck:item/card_generic_gold_back",
+    "front": "action_deck:item/card_generic_gold"
+  },
   "elements": [
     {
-      "from": [0, 0, 8],
-      "to": [16, 16, 8],
+      "from": [
+        0,
+        0,
+        8
+      ],
+      "to": [
+        16,
+        16,
+        8
+      ],
       "rotation": {
         "angle": 0,
         "axis": "y",
-        "origin": [0, 0, 8]
+        "origin": [
+          0,
+          0,
+          8
+        ]
       },
       "faces": {
-        "north": { "uv": [0, 0, 16, 16], "texture": "#1" },
-        "east": { "uv": [16, 0, 16, 16], "texture": "#missing" },
-        "south": { "uv": [0, 0, 16, 16], "texture": "#0" },
-        "west": { "uv": [0, 0, 0, 16], "texture": "#missing" },
-        "up": { "uv": [0, 0, 16, 0], "texture": "#missing" },
-        "down": { "uv": [0, 16, 16, 16], "texture": "#missing" }
+        "north": {
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ],
+          "texture": "#back"
+        },
+        "east": {
+          "uv": [
+            16,
+            0,
+            16,
+            16
+          ],
+          "texture": "#front"
+        },
+        "south": {
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ],
+          "texture": "#front"
+        },
+        "west": {
+          "uv": [
+            0,
+            0,
+            0,
+            16
+          ],
+          "texture": "#front"
+        },
+        "up": {
+          "uv": [
+            0,
+            0,
+            16,
+            0
+          ],
+          "texture": "#front"
+        },
+        "down": {
+          "uv": [
+            0,
+            16,
+            16,
+            16
+          ],
+          "texture": "#front"
+        }
       }
     }
-  ]
+  ],
+  "display": {
+    "thirdperson_righthand": {
+      "rotation": [
+        43.25,
+        0,
+        0
+      ],
+      "translation": [
+        0,
+        3.25,
+        3.5
+      ],
+      "scale": [
+        0.55,
+        0.55,
+        0.55
+      ]
+    },
+    "thirdperson_lefthand": {
+      "rotation": [
+        43.25,
+        0,
+        0
+      ],
+      "translation": [
+        0,
+        3.25,
+        3.5
+      ],
+      "scale": [
+        0.55,
+        0.55,
+        0.55
+      ]
+    },
+    "firstperson_righthand": {
+      "rotation": [
+        0,
+        -12.75,
+        0
+      ],
+      "translation": [
+        0.25,
+        5,
+        1
+      ],
+      "scale": [
+        0.55,
+        0.55,
+        0.55
+      ]
+    },
+    "firstperson_lefthand": {
+      "rotation": [
+        0,
+        -12.75,
+        0
+      ],
+      "translation": [
+        0.25,
+        5,
+        1
+      ],
+      "scale": [
+        0.55,
+        0.55,
+        0.55
+      ]
+    },
+    "ground": {
+      "translation": [
+        0,
+        3,
+        0
+      ],
+      "scale": [
+        0.5,
+        0.5,
+        0.5
+      ]
+    },
+    "gui": {
+      "scale": [
+        0.9,
+        0.9,
+        0.9
+      ]
+    },
+    "head": {
+      "rotation": [
+        0,
+        -180,
+        0
+      ],
+      "translation": [
+        0,
+        14.25,
+        7
+      ]
+    },
+    "fixed": {
+      "rotation": [
+        0,
+        -180,
+        0
+      ],
+      "translation": [
+        0,
+        0,
+        -0.5
+      ]
+    },
+    "on_shelf": {
+      "translation": [
+        0,
+        0,
+        0.5
+      ]
+    }
+  }
 }

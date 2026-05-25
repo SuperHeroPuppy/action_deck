@@ -2,7 +2,7 @@
   "multipart": [
     {
       "apply": {
-        "model": "action_deck:item/deck_stack"
+        "model": "action_deck:deck_stack_base"
       }
     }
   ]

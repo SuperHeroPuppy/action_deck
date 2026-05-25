@@ -4,9 +4,9 @@
   "version": "${version}",
   "name": "Action Deck",
   "description": "A Minecraft mod that adds action deck mechanics.",
-  "authors": ["SupersNetwork"],
+  "authors": ["SuperHeroPuppy"],
   "contact": {
-    "homepage": "https://supersnetwork.net",
+    "homepage": "https://www.supersnetwork.com/home",
     "sources": "https://github.com/SupersNetwork/action_deck"
   },
   "license": "MIT",
@@ -24,6 +24,7 @@
   "depends": {
     "fabricloader": ">=0.15",
     "fabric-api": "*",
+    "fabric_utility": ">=1.0.4",
     "minecraft": "~1.20.1"
   }
 }

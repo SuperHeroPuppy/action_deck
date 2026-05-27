@@ -19,6 +19,7 @@ public class ActionDeckClientSetup {
 	public static final Identifier FALLBACK_CARD_ID = new Identifier(ActionDeck.MOD_ID, "generic_gold_spade_ace");
 
 	public static void registerClientSystems() {
+		ActionDeckClientNetworking.registerClientHandlers();
 		BlockEntityRendererRegistry.register(ActionDeckBlockEntities.DECK_STACK, DeckStackBlockEntityRenderer::new);
 		BuiltinItemRendererRegistry.INSTANCE.register(ActionDeckItems.CARD, new CardItemRenderer()::render);
 		BuiltinItemRendererRegistry.INSTANCE.register(ActionDeckBlocks.DECK_STACK.asItem(), new DeckStackItemRenderer()::render);

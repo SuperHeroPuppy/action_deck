@@ -74,6 +74,12 @@ Decks are metadata and starter lists. Deck stacks can still contain cards from a
 /card give <card_id>
 ```
 
+## Multiplayer Compatibility
+
+Action Deck syncs loaded card and deck definitions from the server to connected clients when players join and after data pack reloads. This keeps dedicated servers, clients, and compatibility layers such as Kilt using the same card metadata.
+
+Clients still need the mod installed for the built-in card textures and models. Server data packs can add or change card/deck metadata, but any custom textures referenced by those definitions must also be available to clients through the mod or a matching resource pack.
+
 ## License
 
 This project is licensed under the MIT License.

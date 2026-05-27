@@ -1,12 +1,16 @@
 package net.supersnetwork.actiondeck.item;
 
 import net.minecraft.client.item.TooltipContext;
-import net.minecraft.item.BlockItem;
+import net.minecraft.block.Block;
+import net.minecraft.block.BlockState;
+import net.minecraft.block.ShapeContext;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.ItemUsageContext;
 import net.minecraft.item.ItemPlacementContext;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.sound.BlockSoundGroup;
+import net.minecraft.sound.SoundCategory;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
 import net.minecraft.util.ActionResult;
@@ -14,6 +18,7 @@ import net.minecraft.util.Formatting;
 import net.minecraft.util.Hand;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.supersnetwork.actiondeck.block.ActionDeckBlocks;
 import net.supersnetwork.actiondeck.block.DeckStackBlockEntity;
@@ -114,22 +119,51 @@ public class Card extends Item {
 			return ActionResult.PASS;
 		}
 
+		return placeSingleCardDeck(context, cardId.get());
+	}
+
+	private static ActionResult placeSingleCardDeck(ItemUsageContext context, Identifier cardId) {
+		World world = context.getWorld();
 		ItemStack deckStack = new ItemStack(ActionDeckBlocks.DECK_STACK);
-		DeckStackBlockEntity.writeCardsToStack(deckStack, List.of(cardId.get()), false);
-		ActionResult result = ((BlockItem) ActionDeckBlocks.DECK_STACK.asItem()).place(
-			new ItemPlacementContext(
-				context.getPlayer(),
-				context.getHand(),
-				deckStack,
-				new BlockHitResult(context.getHitPos(), context.getSide(), context.getBlockPos(), context.hitsInsideBlock())
-			)
+		DeckStackBlockEntity.writeCardsToStack(deckStack, List.of(cardId), false);
+		ItemPlacementContext placementContext = new ItemPlacementContext(
+			context.getPlayer(),
+			context.getHand(),
+			deckStack,
+			new BlockHitResult(context.getHitPos(), context.getSide(), context.getBlockPos(), context.hitsInsideBlock())
 		);
 
-		if (result.isAccepted() && !context.getWorld().isClient && !context.getPlayer().getAbilities().creativeMode) {
+		if (!placementContext.canPlace()) {
+			return ActionResult.FAIL;
+		}
+
+		BlockState placementState = ActionDeckBlocks.DECK_STACK.getPlacementState(placementContext);
+		if (placementState == null) {
+			return ActionResult.FAIL;
+		}
+
+		BlockPos placementPos = placementContext.getBlockPos();
+		if (!world.canPlace(placementState, placementPos, ShapeContext.absent())) {
+			return ActionResult.FAIL;
+		}
+
+		if (world.isClient) {
+			return ActionResult.SUCCESS;
+		}
+
+		if (!world.setBlockState(placementPos, placementState, Block.NOTIFY_ALL)) {
+			return ActionResult.FAIL;
+		}
+
+		ActionDeckBlocks.DECK_STACK.onPlaced(world, placementPos, placementState, context.getPlayer(), deckStack);
+		BlockSoundGroup soundGroup = placementState.getSoundGroup();
+		world.playSound(null, placementPos, soundGroup.getPlaceSound(), SoundCategory.BLOCKS, (soundGroup.getVolume() + 1.0f) / 2.0f, soundGroup.getPitch() * 0.8f);
+
+		if (!context.getPlayer().getAbilities().creativeMode) {
 			context.getStack().decrement(1);
 		}
 
-		return result;
+		return ActionResult.success(false);
 	}
 
 	public static Optional<CardDefinition> getDefinition(NbtCompound nbt) {

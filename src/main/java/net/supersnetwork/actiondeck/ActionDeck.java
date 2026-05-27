@@ -7,6 +7,7 @@ import net.supersnetwork.actiondeck.command.ActionDeckCommands;
 import net.supersnetwork.actiondeck.data.ActionDeckCardDefinitions;
 import net.supersnetwork.actiondeck.data.ActionDeckDeckDefinitions;
 import net.supersnetwork.actiondeck.item.ActionDeckItems;
+import net.supersnetwork.actiondeck.network.ActionDeckNetworking;
 import net.supersnetwork.actiondeck.recipe.ActionDeckRecipes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,6 +25,7 @@ public class ActionDeck implements ModInitializer {
 		ActionDeckRecipes.register();
 		ActionDeckCardDefinitions.register();
 		ActionDeckDeckDefinitions.register();
+		ActionDeckNetworking.registerServerHandlers();
 		ActionDeckCommands.register();
 	}
 }

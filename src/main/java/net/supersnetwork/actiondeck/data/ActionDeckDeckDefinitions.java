@@ -56,10 +56,7 @@ public final class ActionDeckDeckDefinitions implements SimpleSynchronousResourc
 			}
 		});
 
-		DECKS.clear();
-		loaded.entrySet().stream()
-			.sorted(Map.Entry.comparingByKey(Comparator.comparing(Identifier::toString)))
-			.forEach(entry -> DECKS.put(entry.getKey(), entry.getValue()));
+		replaceDecks(loaded.values());
 
 		ActionDeck.LOGGER.info("Loaded {} Action Deck deck definitions", DECKS.size());
 	}
@@ -74,6 +71,17 @@ public final class ActionDeckDeckDefinitions implements SimpleSynchronousResourc
 
 	public static boolean contains(Identifier id) {
 		return DECKS.containsKey(id);
+	}
+
+	public static void applySynced(Collection<DeckDefinition> decks) {
+		replaceDecks(decks);
+	}
+
+	private static void replaceDecks(Collection<DeckDefinition> decks) {
+		DECKS.clear();
+		decks.stream()
+			.sorted(Comparator.comparing(definition -> definition.id().toString()))
+			.forEach(definition -> DECKS.put(definition.id(), definition));
 	}
 
 	private static DeckDefinition parse(Identifier id, JsonObject json) {

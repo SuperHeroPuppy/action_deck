@@ -2,6 +2,10 @@
   "name": "Generic Gold",
   "description": "Auto-generated deck definition.",
   "default_back": "action_deck:item/card_generic_gold_back",
+  "deck_pack": {
+    "crafting_block": "minecraft:gold_block",
+    "texture": "action_deck:item/generic_gold_pack"
+  },
   "cards": [
     "action_deck:generic_gold_club_10",
     "action_deck:generic_gold_club_2",
@@ -13,7 +17,6 @@
     "action_deck:generic_gold_club_8",
     "action_deck:generic_gold_club_9",
     "action_deck:generic_gold_club_ace",
-    "action_deck:generic_gold_club_custom",
     "action_deck:generic_gold_club_jack",
     "action_deck:generic_gold_club_king",
     "action_deck:generic_gold_club_queen",
@@ -27,7 +30,6 @@
     "action_deck:generic_gold_diamonds_8",
     "action_deck:generic_gold_diamonds_9",
     "action_deck:generic_gold_diamonds_ace",
-    "action_deck:generic_gold_diamonds_custom",
     "action_deck:generic_gold_diamonds_jack",
     "action_deck:generic_gold_diamonds_king",
     "action_deck:generic_gold_diamonds_queen",
@@ -41,7 +43,6 @@
     "action_deck:generic_gold_heart_8",
     "action_deck:generic_gold_heart_9",
     "action_deck:generic_gold_heart_ace",
-    "action_deck:generic_gold_heart_custom",
     "action_deck:generic_gold_heart_jack",
     "action_deck:generic_gold_heart_king",
     "action_deck:generic_gold_heart_queen",
@@ -57,26 +58,8 @@
     "action_deck:generic_gold_spade_8",
     "action_deck:generic_gold_spade_9",
     "action_deck:generic_gold_spade_ace",
-    "action_deck:generic_gold_spade_custom",
     "action_deck:generic_gold_spade_jack",
     "action_deck:generic_gold_spade_king",
-    "action_deck:generic_gold_spade_queen",
-    "action_deck:generic_gold_spade_gold_10",
-    "action_deck:generic_gold_spade_gold_2",
-    "action_deck:generic_gold_spade_gold_3",
-    "action_deck:generic_gold_spade_gold_4",
-    "action_deck:generic_gold_spade_gold_5",
-    "action_deck:generic_gold_spade_gold_6",
-    "action_deck:generic_gold_spade_gold_7",
-    "action_deck:generic_gold_spade_gold_8",
-    "action_deck:generic_gold_spade_gold_9",
-    "action_deck:generic_gold_spade_gold_ace",
-    "action_deck:generic_gold_spade_gold_custom",
-    "action_deck:generic_gold_spade_gold_jack",
-    "action_deck:generic_gold_spade_gold_king",
-    "action_deck:generic_gold_spade_gold_queen",
-    "action_deck:generic_gold_yazi_pentagram",
-    "action_deck:generic_gold_king_slime",
-    "action_deck:generic_gold_queen_slime"
+    "action_deck:generic_gold_spade_queen"
   ]
 }

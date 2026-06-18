@@ -1,7 +1,7 @@
 {
   "name": "7 of Spades",
   "description": "Auto-generated card definition.",
-  "deck": "action_deck:generic_gold",
+  "deck": "action_deck:generic_gold_spade_gold",
   "rank": {
     "id": "7",
     "display": "7"

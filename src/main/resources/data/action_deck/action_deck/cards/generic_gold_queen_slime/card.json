@@ -1,7 +1,7 @@
 {
   "name": "Queen Slime",
   "description": "Auto-generated card definition.",
-  "deck": "action_deck:generic_gold",
+  "deck": "action_deck:generic_gold_custom",
   "rank": {
     "id": "2",
     "display": "Queen Slime"

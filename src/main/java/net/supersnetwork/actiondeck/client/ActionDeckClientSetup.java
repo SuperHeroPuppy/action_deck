@@ -22,6 +22,7 @@ public class ActionDeckClientSetup {
 		ActionDeckClientNetworking.registerClientHandlers();
 		BlockEntityRendererRegistry.register(ActionDeckBlockEntities.DECK_STACK, DeckStackBlockEntityRenderer::new);
 		BuiltinItemRendererRegistry.INSTANCE.register(ActionDeckItems.CARD, new CardItemRenderer()::render);
+		BuiltinItemRendererRegistry.INSTANCE.register(ActionDeckItems.DECK_PACK, new DeckPackItemRenderer()::render);
 		BuiltinItemRendererRegistry.INSTANCE.register(ActionDeckBlocks.DECK_STACK.asItem(), new DeckStackItemRenderer()::render);
 		ResourceManagerHelper.get(ResourceType.CLIENT_RESOURCES).registerReloadListener(new SimpleSynchronousResourceReloadListener() {
 			@Override

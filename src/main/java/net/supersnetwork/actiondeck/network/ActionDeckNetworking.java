@@ -90,6 +90,11 @@ public final class ActionDeckNetworking {
 			for (Identifier card : deck.cards()) {
 				buffer.writeIdentifier(card);
 			}
+			buffer.writeBoolean(deck.deckPack().isPresent());
+			deck.deckPack().ifPresent(deckPack -> {
+				buffer.writeIdentifier(deckPack.craftingBlock());
+				writeOptionalIdentifier(buffer, deckPack.texture());
+			});
 		}
 	}
 
@@ -106,7 +111,10 @@ public final class ActionDeckNetworking {
 			for (int cardIndex = 0; cardIndex < cardCount; cardIndex++) {
 				cards.add(buffer.readIdentifier());
 			}
-			decks.add(new DeckDefinition(id, name, description, defaultBack, List.copyOf(cards)));
+			Optional<DeckDefinition.DeckPack> deckPack = buffer.readBoolean()
+				? Optional.of(new DeckDefinition.DeckPack(buffer.readIdentifier(), readOptionalIdentifier(buffer)))
+				: Optional.empty();
+			decks.add(new DeckDefinition(id, name, description, defaultBack, List.copyOf(cards), deckPack));
 		}
 		return List.copyOf(decks);
 	}

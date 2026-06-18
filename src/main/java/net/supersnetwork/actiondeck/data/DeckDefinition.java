@@ -11,6 +11,9 @@ public record DeckDefinition(
 	Text name,
 	Optional<Text> description,
 	Optional<Identifier> defaultBack,
-	List<Identifier> cards
+	List<Identifier> cards,
+	Optional<DeckPack> deckPack
 ) {
+	public record DeckPack(Identifier craftingBlock, Optional<Identifier> texture) {
+	}
 }

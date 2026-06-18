@@ -90,8 +90,20 @@ public final class ActionDeckDeckDefinitions implements SimpleSynchronousResourc
 			ActionDeckCardDefinitions.parseText(json, "name").orElse(Text.literal(ActionDeckCardDefinitions.titleCase(id.getPath()))),
 			ActionDeckCardDefinitions.parseText(json, "description"),
 			ActionDeckCardDefinitions.parseIdentifier(json, "default_back"),
-			parseCards(json)
+			parseCards(json),
+			parseDeckPack(json)
 		);
+	}
+
+	private static Optional<DeckDefinition.DeckPack> parseDeckPack(JsonObject json) {
+		if (!json.has("deck_pack")) {
+			return Optional.empty();
+		}
+
+		JsonObject deckPack = JsonHelper.getObject(json, "deck_pack");
+		Identifier craftingBlock = new Identifier(JsonHelper.getString(deckPack, "crafting_block"));
+		Optional<Identifier> texture = ActionDeckCardDefinitions.parseIdentifier(deckPack, "texture");
+		return Optional.of(new DeckDefinition.DeckPack(craftingBlock, texture));
 	}
 
 	private static List<Identifier> parseCards(JsonObject json) {

@@ -1,0 +1,14 @@
+{
+  "name": "Generic Gold Custom Cards",
+  "description": "A custom deck containing the Generic Gold custom and special cards.",
+  "default_back": "action_deck:item/card_generic_gold_back",
+  "cards": [
+    "action_deck:generic_gold_club_custom",
+    "action_deck:generic_gold_diamonds_custom",
+    "action_deck:generic_gold_heart_custom",
+    "action_deck:generic_gold_spade_custom",
+    "action_deck:generic_gold_yazi_pentagram",
+    "action_deck:generic_gold_king_slime",
+    "action_deck:generic_gold_queen_slime"
+  ]
+}

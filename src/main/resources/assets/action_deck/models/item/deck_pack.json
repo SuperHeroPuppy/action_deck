@@ -1,0 +1,43 @@
+{
+  "parent": "minecraft:builtin/entity",
+  "textures": {
+    "layer0": "minecraft:item/paper"
+  },
+  "display": {
+    "thirdperson_righthand": {
+      "rotation": [43.25, 0, 0],
+      "translation": [0, 3.25, 3.5],
+      "scale": [0.55, 0.55, 0.55]
+    },
+    "thirdperson_lefthand": {
+      "rotation": [43.25, 0, 0],
+      "translation": [0, 3.25, 3.5],
+      "scale": [0.55, 0.55, 0.55]
+    },
+    "firstperson_righthand": {
+      "rotation": [0, -12.75, 0],
+      "translation": [0.25, 5, 1],
+      "scale": [0.55, 0.55, 0.55]
+    },
+    "firstperson_lefthand": {
+      "rotation": [0, -12.75, 0],
+      "translation": [0.25, 5, 1],
+      "scale": [0.55, 0.55, 0.55]
+    },
+    "ground": {
+      "translation": [0, 3, 0],
+      "scale": [0.5, 0.5, 0.5]
+    },
+    "gui": {
+      "scale": [0.9, 0.9, 0.9]
+    },
+    "head": {
+      "rotation": [0, -180, 0],
+      "translation": [0, 14.25, 7]
+    },
+    "fixed": {
+      "rotation": [0, -180, 0],
+      "translation": [0, 0, -0.5]
+    }
+  }
+}

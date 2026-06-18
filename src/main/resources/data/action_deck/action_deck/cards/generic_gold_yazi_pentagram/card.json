@@ -1,7 +1,7 @@
 {
   "name": "Yazi Pentagram",
   "description": "Auto-generated card definition.",
-  "deck": "action_deck:generic_gold",
+  "deck": "action_deck:generic_gold_custom",
   "rank": {
     "id": "1",
     "display": "Yazi Pentagram"

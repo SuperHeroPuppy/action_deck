@@ -58,6 +58,10 @@ Example:
 {
   "name": "Generic Gold",
   "default_back": "action_deck:item/card_generic_gold_back",
+  "deck_pack": {
+    "crafting_block": "minecraft:gold_block",
+    "texture": "action_deck:item/generic_gold_pack"
+  },
   "cards": [
     "action_deck:generic_gold_spade_ace"
   ]
@@ -65,6 +69,12 @@ Example:
 ```
 
 Decks are metadata and starter lists. Deck stacks can still contain cards from any namespace or deck.
+
+The optional `deck_pack` object enables a craftable pack for that deck. Place its configured
+`crafting_block` in the center of a crafting table and surround it with eight pieces of paper.
+Opening the resulting pack gives five random cards from the deck. Decks without `deck_pack`
+do not have a pack recipe. The optional `texture` uses a standard resource identifier without
+the `textures/` prefix or `.png` suffix; if omitted, the pack renders with the paper texture.
 
 ## Commands
 

@@ -1,7 +1,7 @@
 {
   "name": "3 of Spades",
   "description": "Auto-generated card definition.",
-  "deck": "action_deck:generic_gold",
+  "deck": "action_deck:generic_gold_spade_gold",
   "rank": {
     "id": "3",
     "display": "3"

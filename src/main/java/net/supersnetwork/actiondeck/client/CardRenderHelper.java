@@ -44,6 +44,12 @@ public final class CardRenderHelper {
 		renderCard(matrices, vertexConsumers, cardId, light, overlay, HAND_CARD, false, false);
 	}
 
+	public static void renderFlatItem(MatrixStack matrices, VertexConsumerProvider vertexConsumers, Identifier texture, int light, int overlay) {
+		Identifier texturePath = texturePath(texture);
+		renderHorizontalQuad(matrices, vertexConsumers, texturePath, 0.0f, light, overlay, false, HAND_CARD);
+		renderHorizontalQuad(matrices, vertexConsumers, texturePath, HAND_CARD.thickness, light, overlay, true, HAND_CARD);
+	}
+
 	public static void renderStackCard(MatrixStack matrices, VertexConsumerProvider vertexConsumers, Identifier cardId, int light, int overlay) {
 		renderStackCard(matrices, vertexConsumers, cardId, light, overlay, false);
 	}

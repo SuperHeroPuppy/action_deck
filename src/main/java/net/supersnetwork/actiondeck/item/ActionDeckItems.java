@@ -10,6 +10,7 @@ import net.supersnetwork.actiondeck.ActionDeck;
 
 public class ActionDeckItems {
 	public static final Item CARD = register(new Card(new Item.Settings()), "card");
+	public static final Item DECK_PACK = register(new DeckPackItem(new Item.Settings()), "deck_pack");
 
 	public static Item register(Item item, String id) {
 		return Registry.register(Registries.ITEM, new Identifier(ActionDeck.MOD_ID, id), item);

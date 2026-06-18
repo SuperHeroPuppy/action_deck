@@ -1,5 +1,8 @@
 {
   "item.action_deck.card": "Card",
+  "item.action_deck.deck_pack": "Deck Pack",
+  "item.action_deck.deck_pack.named": "%s Pack",
+  "item.action_deck.deck_pack.contains": "Contains %s random cards",
   "block.action_deck.deck_stack": "Deck Stack",
   "deck.action_deck.generic_gold": "Generic Gold"
 }

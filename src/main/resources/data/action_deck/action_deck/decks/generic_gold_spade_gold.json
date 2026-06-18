@@ -1,0 +1,25 @@
+{
+  "name": "Gold Spades",
+  "description": "A custom deck containing the gold Spades card variants.",
+  "default_back": "action_deck:item/card_generic_gold_back",
+  "deck_pack": {
+    "crafting_block": "minecraft:gilded_blackstone",
+    "texture": "action_deck:item/generic_gold_spade_gold_pack"
+  },
+  "cards": [
+    "action_deck:generic_gold_spade_gold_ace",
+    "action_deck:generic_gold_spade_gold_2",
+    "action_deck:generic_gold_spade_gold_3",
+    "action_deck:generic_gold_spade_gold_4",
+    "action_deck:generic_gold_spade_gold_5",
+    "action_deck:generic_gold_spade_gold_6",
+    "action_deck:generic_gold_spade_gold_7",
+    "action_deck:generic_gold_spade_gold_8",
+    "action_deck:generic_gold_spade_gold_9",
+    "action_deck:generic_gold_spade_gold_10",
+    "action_deck:generic_gold_spade_gold_jack",
+    "action_deck:generic_gold_spade_gold_queen",
+    "action_deck:generic_gold_spade_gold_king",
+    "action_deck:generic_gold_spade_gold_custom"
+  ]
+}

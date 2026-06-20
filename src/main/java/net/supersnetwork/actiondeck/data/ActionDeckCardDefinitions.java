@@ -15,6 +15,7 @@ import net.supersnetwork.actiondeck.ActionDeck;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -30,7 +31,7 @@ public final class ActionDeckCardDefinitions implements SimpleSynchronousResourc
 
 	private static final String ROOT_PATH = "action_deck/cards";
 	private static final String CARD_FILE = "/card.json";
-	private static final Map<Identifier, CardDefinition> CARDS = new LinkedHashMap<>();
+	private static volatile Map<Identifier, CardDefinition> cards = Map.of();
 
 	private ActionDeckCardDefinitions() {
 	}
@@ -60,19 +61,19 @@ public final class ActionDeckCardDefinitions implements SimpleSynchronousResourc
 
 		replaceCards(loaded.values());
 
-		ActionDeck.LOGGER.info("Loaded {} Action Deck card definitions", CARDS.size());
+		ActionDeck.LOGGER.info("Loaded {} Action Deck card definitions", cards.size());
 	}
 
 	public static Collection<CardDefinition> all() {
-		return CARDS.values();
+		return cards.values();
 	}
 
 	public static Optional<CardDefinition> get(Identifier id) {
-		return Optional.ofNullable(CARDS.get(id));
+		return Optional.ofNullable(cards.get(id));
 	}
 
 	public static boolean contains(Identifier id) {
-		return CARDS.containsKey(id);
+		return cards.containsKey(id);
 	}
 
 	public static void applySynced(Collection<CardDefinition> cards) {
@@ -80,10 +81,11 @@ public final class ActionDeckCardDefinitions implements SimpleSynchronousResourc
 	}
 
 	private static void replaceCards(Collection<CardDefinition> cards) {
-		CARDS.clear();
+		Map<Identifier, CardDefinition> replacement = new LinkedHashMap<>();
 		cards.stream()
 			.sorted(Comparator.comparing(definition -> definition.id().toString()))
-			.forEach(definition -> CARDS.put(definition.id(), definition));
+			.forEach(definition -> replacement.put(definition.id(), definition));
+		ActionDeckCardDefinitions.cards = Collections.unmodifiableMap(replacement);
 	}
 
 	private static CardDefinition parse(Identifier id, JsonObject json) {

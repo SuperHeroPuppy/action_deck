@@ -17,6 +17,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -28,7 +29,7 @@ public final class ActionDeckDeckDefinitions implements SimpleSynchronousResourc
 
 	private static final String ROOT_PATH = "action_deck/decks";
 	private static final String DECK_FILE = ".json";
-	private static final Map<Identifier, DeckDefinition> DECKS = new LinkedHashMap<>();
+	private static volatile Map<Identifier, DeckDefinition> decks = Map.of();
 
 	private ActionDeckDeckDefinitions() {
 	}
@@ -58,19 +59,19 @@ public final class ActionDeckDeckDefinitions implements SimpleSynchronousResourc
 
 		replaceDecks(loaded.values());
 
-		ActionDeck.LOGGER.info("Loaded {} Action Deck deck definitions", DECKS.size());
+		ActionDeck.LOGGER.info("Loaded {} Action Deck deck definitions", decks.size());
 	}
 
 	public static Collection<DeckDefinition> all() {
-		return DECKS.values();
+		return decks.values();
 	}
 
 	public static Optional<DeckDefinition> get(Identifier id) {
-		return Optional.ofNullable(DECKS.get(id));
+		return Optional.ofNullable(decks.get(id));
 	}
 
 	public static boolean contains(Identifier id) {
-		return DECKS.containsKey(id);
+		return decks.containsKey(id);
 	}
 
 	public static void applySynced(Collection<DeckDefinition> decks) {
@@ -78,10 +79,11 @@ public final class ActionDeckDeckDefinitions implements SimpleSynchronousResourc
 	}
 
 	private static void replaceDecks(Collection<DeckDefinition> decks) {
-		DECKS.clear();
+		Map<Identifier, DeckDefinition> replacement = new LinkedHashMap<>();
 		decks.stream()
 			.sorted(Comparator.comparing(definition -> definition.id().toString()))
-			.forEach(definition -> DECKS.put(definition.id(), definition));
+			.forEach(definition -> replacement.put(definition.id(), definition));
+		ActionDeckDeckDefinitions.decks = Collections.unmodifiableMap(replacement);
 	}
 
 	private static DeckDefinition parse(Identifier id, JsonObject json) {

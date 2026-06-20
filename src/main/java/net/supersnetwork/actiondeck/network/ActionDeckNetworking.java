@@ -19,7 +19,23 @@ import java.util.List;
 import java.util.Optional;
 
 public final class ActionDeckNetworking {
-	public static final Identifier SYNC_DEFINITIONS = new Identifier(ActionDeck.MOD_ID, "sync_definitions");
+	/**
+	 * The original channel used by Action Deck 1.0.4. Its deck payload does not
+	 * contain deck-pack data.
+	 */
+	public static final Identifier LEGACY_SYNC_DEFINITIONS = new Identifier(ActionDeck.MOD_ID, "sync_definitions");
+	/**
+	 * A separate channel is required because adding fields to the legacy stream
+	 * causes old clients to interpret text bytes as the next deck identifier.
+	 */
+	public static final Identifier SYNC_DEFINITIONS = new Identifier(ActionDeck.MOD_ID, "sync_definitions_v2");
+
+	private static final int PROTOCOL_VERSION = 2;
+	private static final int MAX_CARDS = 16_384;
+	private static final int MAX_DECKS = 1_024;
+	private static final int MAX_CARDS_PER_DECK = 16_384;
+	private static final int MAX_TEXT_LENGTH = 16_384;
+	private static final int MAX_VALUE_LENGTH = 1_024;
 
 	private ActionDeckNetworking() {
 	}
@@ -29,22 +45,39 @@ public final class ActionDeckNetworking {
 	}
 
 	public static void sendDefinitions(ServerPlayerEntity player) {
-		if (!ServerPlayNetworking.canSend(player, SYNC_DEFINITIONS)) {
-			return;
+		if (ServerPlayNetworking.canSend(player, SYNC_DEFINITIONS)) {
+			ServerPlayNetworking.send(player, SYNC_DEFINITIONS, writeDefinitions());
+		} else if (ServerPlayNetworking.canSend(player, LEGACY_SYNC_DEFINITIONS)) {
+			// Keep 1.0.4 clients functional without sending the fields they cannot decode.
+			ServerPlayNetworking.send(player, LEGACY_SYNC_DEFINITIONS, writeLegacyDefinitions());
 		}
-
-		ServerPlayNetworking.send(player, SYNC_DEFINITIONS, writeDefinitions());
 	}
 
 	public static PacketByteBuf writeDefinitions() {
 		PacketByteBuf buffer = PacketByteBufs.create();
+		buffer.writeVarInt(PROTOCOL_VERSION);
 		writeCards(buffer, ActionDeckCardDefinitions.all());
-		writeDecks(buffer, ActionDeckDeckDefinitions.all());
+		writeDecks(buffer, ActionDeckDeckDefinitions.all(), true);
+		return buffer;
+	}
+
+	public static PacketByteBuf writeLegacyDefinitions() {
+		PacketByteBuf buffer = PacketByteBufs.create();
+		writeCards(buffer, ActionDeckCardDefinitions.all());
+		writeDecks(buffer, ActionDeckDeckDefinitions.all(), false);
 		return buffer;
 	}
 
 	public static SyncedDefinitions readDefinitions(PacketByteBuf buffer) {
-		return new SyncedDefinitions(readCards(buffer), readDecks(buffer));
+		int version = buffer.readVarInt();
+		if (version != PROTOCOL_VERSION) {
+			throw new IllegalArgumentException("Unsupported Action Deck definition protocol version: " + version);
+		}
+		return new SyncedDefinitions(readCards(buffer), readDecks(buffer, true));
+	}
+
+	public static SyncedDefinitions readLegacyDefinitions(PacketByteBuf buffer) {
+		return new SyncedDefinitions(readCards(buffer), readDecks(buffer, false));
 	}
 
 	private static void writeCards(PacketByteBuf buffer, Collection<CardDefinition> cards) {
@@ -63,7 +96,7 @@ public final class ActionDeckNetworking {
 	}
 
 	private static List<CardDefinition> readCards(PacketByteBuf buffer) {
-		int size = buffer.readVarInt();
+		int size = readBoundedCount(buffer, MAX_CARDS, "card definitions");
 		List<CardDefinition> cards = new ArrayList<>(size);
 		for (int i = 0; i < size; i++) {
 			Identifier id = buffer.readIdentifier();
@@ -79,7 +112,7 @@ public final class ActionDeckNetworking {
 		return List.copyOf(cards);
 	}
 
-	private static void writeDecks(PacketByteBuf buffer, Collection<DeckDefinition> decks) {
+	private static void writeDecks(PacketByteBuf buffer, Collection<DeckDefinition> decks, boolean includeDeckPacks) {
 		buffer.writeVarInt(decks.size());
 		for (DeckDefinition deck : decks) {
 			buffer.writeIdentifier(deck.id());
@@ -90,28 +123,30 @@ public final class ActionDeckNetworking {
 			for (Identifier card : deck.cards()) {
 				buffer.writeIdentifier(card);
 			}
-			buffer.writeBoolean(deck.deckPack().isPresent());
-			deck.deckPack().ifPresent(deckPack -> {
-				buffer.writeIdentifier(deckPack.craftingBlock());
-				writeOptionalIdentifier(buffer, deckPack.texture());
-			});
+			if (includeDeckPacks) {
+				buffer.writeBoolean(deck.deckPack().isPresent());
+				deck.deckPack().ifPresent(deckPack -> {
+					buffer.writeIdentifier(deckPack.craftingBlock());
+					writeOptionalIdentifier(buffer, deckPack.texture());
+				});
+			}
 		}
 	}
 
-	private static List<DeckDefinition> readDecks(PacketByteBuf buffer) {
-		int size = buffer.readVarInt();
+	private static List<DeckDefinition> readDecks(PacketByteBuf buffer, boolean includeDeckPacks) {
+		int size = readBoundedCount(buffer, MAX_DECKS, "deck definitions");
 		List<DeckDefinition> decks = new ArrayList<>(size);
 		for (int i = 0; i < size; i++) {
 			Identifier id = buffer.readIdentifier();
 			Text name = readText(buffer);
 			Optional<Text> description = readOptionalText(buffer);
 			Optional<Identifier> defaultBack = readOptionalIdentifier(buffer);
-			int cardCount = buffer.readVarInt();
+			int cardCount = readBoundedCount(buffer, MAX_CARDS_PER_DECK, "cards in deck " + id);
 			List<Identifier> cards = new ArrayList<>(cardCount);
 			for (int cardIndex = 0; cardIndex < cardCount; cardIndex++) {
 				cards.add(buffer.readIdentifier());
 			}
-			Optional<DeckDefinition.DeckPack> deckPack = buffer.readBoolean()
+			Optional<DeckDefinition.DeckPack> deckPack = includeDeckPacks && buffer.readBoolean()
 				? Optional.of(new DeckDefinition.DeckPack(buffer.readIdentifier(), readOptionalIdentifier(buffer)))
 				: Optional.empty();
 			decks.add(new DeckDefinition(id, name, description, defaultBack, List.copyOf(cards), deckPack));
@@ -126,7 +161,7 @@ public final class ActionDeckNetworking {
 	}
 
 	private static CardDefinition.DisplayValue readDisplayValue(PacketByteBuf buffer) {
-		return new CardDefinition.DisplayValue(buffer.readString(32767), readText(buffer), readOptionalString(buffer));
+		return new CardDefinition.DisplayValue(buffer.readString(MAX_VALUE_LENGTH), readText(buffer), readOptionalString(buffer));
 	}
 
 	private static void writeText(PacketByteBuf buffer, Text text) {
@@ -134,7 +169,7 @@ public final class ActionDeckNetworking {
 	}
 
 	private static Text readText(PacketByteBuf buffer) {
-		Text text = Text.Serializer.fromJson(buffer.readString(32767));
+		Text text = Text.Serializer.fromJson(buffer.readString(MAX_TEXT_LENGTH));
 		return text == null ? Text.literal("") : text;
 	}
 
@@ -162,7 +197,17 @@ public final class ActionDeckNetworking {
 	}
 
 	private static Optional<String> readOptionalString(PacketByteBuf buffer) {
-		return buffer.readBoolean() ? Optional.of(buffer.readString(32767)) : Optional.empty();
+		return buffer.readBoolean() ? Optional.of(buffer.readString(MAX_VALUE_LENGTH)) : Optional.empty();
+	}
+
+	private static int readBoundedCount(PacketByteBuf buffer, int maximum, String description) {
+		int count = buffer.readVarInt();
+		if (count < 0 || count > maximum) {
+			throw new IllegalArgumentException(
+				"Invalid " + description + " count " + count + " (maximum " + maximum + ")"
+			);
+		}
+		return count;
 	}
 
 	public record SyncedDefinitions(List<CardDefinition> cards, List<DeckDefinition> decks) {

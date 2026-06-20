@@ -23,9 +23,11 @@ import java.util.Optional;
 public class DeckStackBlockEntity extends BlockEntity {
 	public static final String CARDS_KEY = "Cards";
 	public static final String FACE_DOWN_KEY = "FaceDown";
+	public static final int SHUFFLE_COOLDOWN_TICKS = 20;
 
 	private final List<Identifier> cards = new ArrayList<>();
 	private boolean faceDown;
+	private long nextShuffleTick;
 
 	public DeckStackBlockEntity(BlockPos pos, BlockState state) {
 		super(ActionDeckBlockEntities.DECK_STACK, pos, state);
@@ -97,9 +99,20 @@ public class DeckStackBlockEntity extends BlockEntity {
 		return net.supersnetwork.actiondeck.item.Card.createCard(cardId);
 	}
 
-	public void shuffle() {
+	public boolean tryShuffle() {
+		if (world == null || world.isClient) {
+			return false;
+		}
+
+		long currentTick = world.getTime();
+		if (currentTick < nextShuffleTick) {
+			return false;
+		}
+
+		nextShuffleTick = currentTick + SHUFFLE_COOLDOWN_TICKS;
 		Collections.shuffle(cards);
 		sync();
+		return true;
 	}
 
 	public ItemStack createDeckStack() {

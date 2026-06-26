@@ -1,4 +1,4 @@
-# Action Deck
+# Action Deck 1.20.1
 
 Action Deck is a Minecraft Fabric mod for data-driven collectible cards and mixed card stacks.
 

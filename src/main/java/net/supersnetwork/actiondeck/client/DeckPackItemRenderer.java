@@ -10,7 +10,7 @@ import net.supersnetwork.actiondeck.data.ActionDeckDeckDefinitions;
 import net.supersnetwork.actiondeck.item.DeckPackItem;
 
 public class DeckPackItemRenderer {
-	private static final Identifier FALLBACK_TEXTURE = new Identifier("minecraft", "item/paper");
+	private static final Identifier FALLBACK_TEXTURE = Identifier.of("minecraft", "item/paper");
 
 	public void render(ItemStack stack, ModelTransformationMode mode, MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light, int overlay) {
 		Identifier texture = DeckPackItem.getDeckId(stack)

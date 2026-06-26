@@ -1,9 +1,10 @@
 package net.supersnetwork.actiondeck.item;
 
 import net.minecraft.block.Block;
-import net.minecraft.client.item.TooltipContext;
 import net.minecraft.item.BlockItem;
+import net.minecraft.item.Item.TooltipContext;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.tooltip.TooltipType;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.world.World;
@@ -17,8 +18,8 @@ public class DeckStackItem extends BlockItem {
 	}
 
 	@Override
-	public void appendTooltip(ItemStack stack, World world, List<Text> tooltip, TooltipContext context) {
-		super.appendTooltip(stack, world, tooltip, context);
+	public void appendTooltip(ItemStack stack, TooltipContext context, List<Text> tooltip, TooltipType type) {
+		super.appendTooltip(stack, context, tooltip, type);
 		int cardCount = DeckStackBlockEntity.readCardsFromStack(stack).size();
 		String facing = DeckStackBlockEntity.isFaceDown(stack) ? "Down" : "Up";
 		tooltip.add(Text.literal("Cards: ")

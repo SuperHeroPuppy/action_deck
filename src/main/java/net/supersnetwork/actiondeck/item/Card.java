@@ -1,13 +1,14 @@
 package net.supersnetwork.actiondeck.item;
 
-import net.minecraft.client.item.TooltipContext;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.ShapeContext;
 import net.minecraft.item.Item;
+import net.minecraft.item.Item.TooltipContext;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.ItemUsageContext;
 import net.minecraft.item.ItemPlacementContext;
+import net.minecraft.item.tooltip.TooltipType;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.sound.BlockSoundGroup;
 import net.minecraft.sound.SoundCategory;
@@ -47,7 +48,7 @@ public class Card extends Item {
 
 	@Override
 	public Text getName(ItemStack stack) {
-		NbtCompound nbt = stack.getNbt();
+		NbtCompound nbt = ActionDeckStackData.get(stack);
 		Optional<CardDefinition> definition = getDefinition(nbt);
 		if (definition.isPresent()) {
 			return definition.get().name();
@@ -61,10 +62,10 @@ public class Card extends Item {
 	}
 
 	@Override
-	public void appendTooltip(ItemStack stack, World world, java.util.List<Text> tooltip, TooltipContext context) {
-		super.appendTooltip(stack, world, tooltip, context);
+	public void appendTooltip(ItemStack stack, TooltipContext context, java.util.List<Text> tooltip, TooltipType type) {
+		super.appendTooltip(stack, context, tooltip, type);
 
-		NbtCompound nbt = stack.getNbt();
+		NbtCompound nbt = ActionDeckStackData.get(stack);
 		if (nbt == null) {
 			return;
 		}
@@ -172,20 +173,20 @@ public class Card extends Item {
 		}
 
 		try {
-			return ActionDeckCardDefinitions.get(new Identifier(nbt.getString(ActionDeckCardDefinitions.CARD_ID_KEY)));
+			return ActionDeckCardDefinitions.get(Identifier.of(nbt.getString(ActionDeckCardDefinitions.CARD_ID_KEY)));
 		} catch (Exception ignored) {
 			return Optional.empty();
 		}
 	}
 
 	public static Optional<Identifier> getCardId(ItemStack stack) {
-		NbtCompound nbt = stack.getNbt();
+		NbtCompound nbt = ActionDeckStackData.get(stack);
 		if (nbt == null || !nbt.contains(ActionDeckCardDefinitions.CARD_ID_KEY)) {
 			return Optional.empty();
 		}
 
 		try {
-			return Optional.of(new Identifier(nbt.getString(ActionDeckCardDefinitions.CARD_ID_KEY)));
+			return Optional.of(Identifier.of(nbt.getString(ActionDeckCardDefinitions.CARD_ID_KEY)));
 		} catch (Exception ignored) {
 			return Optional.empty();
 		}
@@ -254,7 +255,7 @@ public class Card extends Item {
 
 	private static Text getFormattedDeckText(String deckValue) {
 		try {
-			return getFormattedDeckText(new Identifier(deckValue));
+			return getFormattedDeckText(Identifier.of(deckValue));
 		} catch (Exception ignored) {
 			return Text.literal(toTitleCase(deckValue)).formatted(Formatting.GOLD);
 		}
@@ -303,7 +304,7 @@ public class Card extends Item {
 		NbtCompound nbt = new NbtCompound();
 		nbt.putString("deck", deckType);
 		
-		stack.setNbt(nbt);
+		ActionDeckStackData.set(stack, nbt);
 		return stack;
 	}
 
@@ -317,9 +318,10 @@ public class Card extends Item {
 	 */
 	public static ItemStack createCard(String deckType, float cardNumber, float cardSuit) {
 		ItemStack stack = createCard(deckType);
-		NbtCompound nbt = stack.getOrCreateNbt();
+		NbtCompound nbt = ActionDeckStackData.getOrCreate(stack);
 		nbt.putFloat("card_number", cardNumber);
 		nbt.putFloat("card_suit", cardSuit);
+		ActionDeckStackData.set(stack, nbt);
 		return stack;
 	}
 
@@ -327,7 +329,7 @@ public class Card extends Item {
 		ItemStack stack = new ItemStack(ActionDeckItems.CARD);
 		NbtCompound nbt = new NbtCompound();
 		nbt.putString(ActionDeckCardDefinitions.CARD_ID_KEY, cardId.toString());
-		stack.setNbt(nbt);
+		ActionDeckStackData.set(stack, nbt);
 		return stack;
 	}
 }

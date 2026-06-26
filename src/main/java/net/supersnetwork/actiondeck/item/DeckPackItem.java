@@ -1,9 +1,10 @@
 package net.supersnetwork.actiondeck.item;
 
-import net.minecraft.client.item.TooltipContext;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
+import net.minecraft.item.Item.TooltipContext;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.tooltip.TooltipType;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
@@ -39,8 +40,8 @@ public class DeckPackItem extends Item {
 	}
 
 	@Override
-	public void appendTooltip(ItemStack stack, World world, List<Text> tooltip, TooltipContext context) {
-		super.appendTooltip(stack, world, tooltip, context);
+	public void appendTooltip(ItemStack stack, TooltipContext context, List<Text> tooltip, TooltipType type) {
+		super.appendTooltip(stack, context, tooltip, type);
 		getDeck(stack).ifPresent(deck -> {
 			deck.description().ifPresent(description -> tooltip.add(description.copy().formatted(Formatting.GRAY)));
 			tooltip.add(Text.translatable("item.action_deck.deck_pack.contains", CARDS_PER_PACK)
@@ -93,18 +94,18 @@ public class DeckPackItem extends Item {
 		ItemStack stack = new ItemStack(ActionDeckItems.DECK_PACK);
 		NbtCompound nbt = new NbtCompound();
 		nbt.putString(DECK_ID_KEY, deckId.toString());
-		stack.setNbt(nbt);
+		ActionDeckStackData.set(stack, nbt);
 		return stack;
 	}
 
 	public static Optional<Identifier> getDeckId(ItemStack stack) {
-		NbtCompound nbt = stack.getNbt();
+		NbtCompound nbt = ActionDeckStackData.get(stack);
 		if (nbt == null || !nbt.contains(DECK_ID_KEY)) {
 			return Optional.empty();
 		}
 
 		try {
-			return Optional.of(new Identifier(nbt.getString(DECK_ID_KEY)));
+			return Optional.of(Identifier.of(nbt.getString(DECK_ID_KEY)));
 		} catch (Exception ignored) {
 			return Optional.empty();
 		}

@@ -13,6 +13,7 @@ import net.minecraft.network.packet.s2c.play.BlockEntityUpdateS2CPacket;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.supersnetwork.actiondeck.data.ActionDeckCardDefinitions;
+import net.supersnetwork.actiondeck.item.ActionDeckStackData;
 import net.supersnetwork.actiondeck.item.ActionDeckItems;
 
 import java.util.ArrayList;
@@ -130,13 +131,13 @@ public class DeckStackBlockEntity extends BlockEntity {
 	}
 
 	public static boolean isFaceDown(ItemStack stack) {
-		NbtCompound nbt = stack.getNbt();
+		NbtCompound nbt = ActionDeckStackData.get(stack);
 		return nbt != null && nbt.getBoolean(FACE_DOWN_KEY);
 	}
 
 	public static List<Identifier> readCardsFromStack(ItemStack stack) {
 		List<Identifier> result = new ArrayList<>();
-		NbtCompound nbt = stack.getNbt();
+		NbtCompound nbt = ActionDeckStackData.get(stack);
 
 		if (nbt == null || !nbt.contains(CARDS_KEY)) {
 			return result;
@@ -155,7 +156,7 @@ public class DeckStackBlockEntity extends BlockEntity {
 	}
 
 	public static void writeCardsToStack(ItemStack stack, List<Identifier> cards, boolean faceDown) {
-		NbtCompound nbt = stack.getOrCreateNbt();
+		NbtCompound nbt = ActionDeckStackData.getOrCreate(stack);
 		NbtList list = new NbtList();
 
 		for (Identifier card : cards) {
@@ -164,11 +165,12 @@ public class DeckStackBlockEntity extends BlockEntity {
 
 		nbt.put(CARDS_KEY, list);
 		nbt.putBoolean(FACE_DOWN_KEY, faceDown);
+		ActionDeckStackData.set(stack, nbt);
 	}
 
 	@Override
-	public void readNbt(NbtCompound nbt) {
-		super.readNbt(nbt);
+	protected void readNbt(NbtCompound nbt, net.minecraft.registry.RegistryWrapper.WrapperLookup registryLookup) {
+		super.readNbt(nbt, registryLookup);
 		cards.clear();
 		faceDown = nbt.getBoolean(FACE_DOWN_KEY);
 
@@ -179,14 +181,14 @@ public class DeckStackBlockEntity extends BlockEntity {
 	}
 
 	@Override
-	protected void writeNbt(NbtCompound nbt) {
-		super.writeNbt(nbt);
+	protected void writeNbt(NbtCompound nbt, net.minecraft.registry.RegistryWrapper.WrapperLookup registryLookup) {
+		super.writeNbt(nbt, registryLookup);
 		writeCards(nbt);
 	}
 
 	@Override
-	public NbtCompound toInitialChunkDataNbt() {
-		return createNbt();
+	public NbtCompound toInitialChunkDataNbt(net.minecraft.registry.RegistryWrapper.WrapperLookup registryLookup) {
+		return createNbt(registryLookup);
 	}
 
 	@Override
@@ -213,7 +215,7 @@ public class DeckStackBlockEntity extends BlockEntity {
 
 	private static Optional<Identifier> parseIdentifier(String value) {
 		try {
-			Identifier id = new Identifier(value);
+			Identifier id = Identifier.of(value);
 			if (ActionDeckCardDefinitions.contains(id)) {
 				return Optional.of(id);
 			}

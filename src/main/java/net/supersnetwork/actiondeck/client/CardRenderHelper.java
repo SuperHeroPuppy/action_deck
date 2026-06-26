@@ -23,7 +23,7 @@ import java.util.Optional;
 
 public final class CardRenderHelper {
 	private static final Dimensions HAND_CARD = new Dimensions(-0.5f, 0.5f, -0.5f, 0.5f, 0.001f, 0.0f, 1.0f);
-	private static final Identifier DECK_STACK_MODEL = new Identifier(ActionDeck.MOD_ID, "models/deck_stack_base.json");
+	private static final Identifier DECK_STACK_MODEL = Identifier.of(ActionDeck.MOD_ID, "models/deck_stack_base.json");
 	private static final Dimensions DEFAULT_STACK_CARD = new Dimensions(-0.3125f, 0.3125f, -0.4375f, 0.4375f, 0.0625f, 0.125f, 0.875f);
 	private static Dimensions stackCard = DEFAULT_STACK_CARD;
 	private static boolean stackCardLoaded;
@@ -130,12 +130,11 @@ public final class CardRenderHelper {
 			.texture(u, v)
 			.overlay(overlay)
 			.light(light)
-			.normal(normal, normalX, normalY, normalZ)
-			.next();
+			.normal(normalX, normalY, normalZ);
 	}
 
 	private static Identifier texturePath(Identifier texture) {
-		return new Identifier(texture.getNamespace(), "textures/" + texture.getPath() + ".png");
+		return Identifier.of(texture.getNamespace(), "textures/" + texture.getPath() + ".png");
 	}
 
 	private static Optional<Dimensions> loadStackDimensions(ResourceManager manager) {

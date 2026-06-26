@@ -16,7 +16,7 @@ import net.supersnetwork.actiondeck.item.ActionDeckItems;
 
 @Environment(EnvType.CLIENT)
 public class ActionDeckClientSetup {
-	public static final Identifier FALLBACK_CARD_ID = new Identifier(ActionDeck.MOD_ID, "generic_gold_spade_ace");
+	public static final Identifier FALLBACK_CARD_ID = Identifier.of(ActionDeck.MOD_ID, "generic_gold_spade_ace");
 
 	public static void registerClientSystems() {
 		ActionDeckClientNetworking.registerClientHandlers();
@@ -27,7 +27,7 @@ public class ActionDeckClientSetup {
 		ResourceManagerHelper.get(ResourceType.CLIENT_RESOURCES).registerReloadListener(new SimpleSynchronousResourceReloadListener() {
 			@Override
 			public Identifier getFabricId() {
-				return new Identifier(ActionDeck.MOD_ID, "model_geometry");
+				return Identifier.of(ActionDeck.MOD_ID, "model_geometry");
 			}
 
 			@Override

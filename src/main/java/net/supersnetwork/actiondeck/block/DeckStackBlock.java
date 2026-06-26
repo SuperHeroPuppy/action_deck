@@ -17,6 +17,7 @@ import net.minecraft.state.property.IntProperty;
 import net.minecraft.state.property.Properties;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
+import net.minecraft.util.ItemActionResult;
 import net.minecraft.util.ItemScatterer;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
@@ -75,18 +76,14 @@ public class DeckStackBlock extends Block implements BlockEntityProvider {
 	}
 
 	@Override
-	public ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit) {
-		if (hand != Hand.MAIN_HAND) {
-			return ActionResult.PASS;
-		}
+	protected ItemActionResult onUseWithItem(ItemStack held, BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit) {
 		if (!(world.getBlockEntity(pos) instanceof DeckStackBlockEntity deck)) {
-			return ActionResult.PASS;
+			return ItemActionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
 		}
 
-		ItemStack held = player.getStackInHand(hand);
 		if (DeckStackBlockEntity.isCard(held)) {
 			if (deck.isFaceDown()) {
-				return ActionResult.FAIL;
+				return ItemActionResult.FAIL;
 			}
 			if (!world.isClient) {
 				Card.getCardId(held).ifPresent(deck::addCard);
@@ -96,9 +93,19 @@ public class DeckStackBlock extends Block implements BlockEntityProvider {
 				updateLevel(world, pos, state, deck.size());
 				world.playSound(null, pos, SoundEvents.ENTITY_ITEM_FRAME_ADD_ITEM, SoundCategory.BLOCKS, 0.5f, 1.0f);
 			}
-			return ActionResult.success(world.isClient);
+			return ItemActionResult.success(world.isClient);
 		}
 
+		return ItemActionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+	}
+
+	@Override
+	protected ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, BlockHitResult hit) {
+		if (!(world.getBlockEntity(pos) instanceof DeckStackBlockEntity deck)) {
+			return ActionResult.PASS;
+		}
+
+		ItemStack held = player.getMainHandStack();
 		if (player.isSneaking() && held.isEmpty()) {
 			if (!world.isClient) {
 				if (deck.tryShuffle()) {
@@ -123,27 +130,27 @@ public class DeckStackBlock extends Block implements BlockEntityProvider {
 	}
 
 	@Override
-	public void onBreak(World world, BlockPos pos, BlockState state, PlayerEntity player) {
+	public BlockState onBreak(World world, BlockPos pos, BlockState state, PlayerEntity player) {
 		if (!world.isClient && world.getBlockEntity(pos) instanceof DeckStackBlockEntity deck && !deck.isEmpty()) {
 			ItemStack stack = deck.size() == 1 ? Card.createCard(deck.getCards().get(0)) : deck.createDeckStack();
 			ItemEntity entity = new ItemEntity(world, pos.getX() + 0.5, pos.getY() + 0.25, pos.getZ() + 0.5, stack);
 			world.spawnEntity(entity);
 		}
-		super.onBreak(world, pos, state, player);
+		return super.onBreak(world, pos, state, player);
 	}
 
 	@Override
-	public BlockState getStateForNeighborUpdate(BlockState state, Direction direction, BlockState neighborState, WorldAccess world, BlockPos pos, BlockPos neighborPos) {
+	protected BlockState getStateForNeighborUpdate(BlockState state, Direction direction, BlockState neighborState, WorldAccess world, BlockPos pos, BlockPos neighborPos) {
 		return state;
 	}
 
 	@Override
-	public VoxelShape getOutlineShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
+	protected VoxelShape getOutlineShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
 		return SHAPES[Math.max(1, state.get(LEVEL))][state.get(ROTATION)];
 	}
 
 	@Override
-	public VoxelShape getCollisionShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
+	protected VoxelShape getCollisionShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
 		return SHAPES[Math.max(1, state.get(LEVEL))][state.get(ROTATION)];
 	}
 

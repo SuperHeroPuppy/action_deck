@@ -13,7 +13,7 @@ public class ActionDeckItems {
 	public static final Item DECK_PACK = register(new DeckPackItem(new Item.Settings()), "deck_pack");
 
 	public static Item register(Item item, String id) {
-		return Registry.register(Registries.ITEM, new Identifier(ActionDeck.MOD_ID, id), item);
+		return Registry.register(Registries.ITEM, Identifier.of(ActionDeck.MOD_ID, id), item);
 	}
 
 	public static void register() {

@@ -25,7 +25,7 @@ import java.util.Map;
 import java.util.Optional;
 
 public final class ActionDeckDeckDefinitions implements SimpleSynchronousResourceReloadListener {
-	public static final Identifier RELOAD_ID = new Identifier(ActionDeck.MOD_ID, "decks");
+	public static final Identifier RELOAD_ID = Identifier.of(ActionDeck.MOD_ID, "decks");
 
 	private static final String ROOT_PATH = "action_deck/decks";
 	private static final String DECK_FILE = ".json";
@@ -103,7 +103,7 @@ public final class ActionDeckDeckDefinitions implements SimpleSynchronousResourc
 		}
 
 		JsonObject deckPack = JsonHelper.getObject(json, "deck_pack");
-		Identifier craftingBlock = new Identifier(JsonHelper.getString(deckPack, "crafting_block"));
+		Identifier craftingBlock = Identifier.of(JsonHelper.getString(deckPack, "crafting_block"));
 		Optional<Identifier> texture = ActionDeckCardDefinitions.parseIdentifier(deckPack, "texture");
 		return Optional.of(new DeckDefinition.DeckPack(craftingBlock, texture));
 	}
@@ -112,7 +112,7 @@ public final class ActionDeckDeckDefinitions implements SimpleSynchronousResourc
 		List<Identifier> cards = new ArrayList<>();
 		JsonArray array = JsonHelper.getArray(json, "cards", new JsonArray());
 		for (JsonElement element : array) {
-			cards.add(new Identifier(JsonHelper.asString(element, "card id")));
+			cards.add(Identifier.of(JsonHelper.asString(element, "card id")));
 		}
 		return List.copyOf(cards);
 	}
@@ -128,6 +128,6 @@ public final class ActionDeckDeckDefinitions implements SimpleSynchronousResourc
 			throw new IOException("Deck definitions must be in " + ROOT_PATH + "/<deck_id>.json: " + resourceId);
 		}
 
-		return new Identifier(resourceId.getNamespace(), deckPath);
+		return Identifier.of(resourceId.getNamespace(), deckPath);
 	}
 }

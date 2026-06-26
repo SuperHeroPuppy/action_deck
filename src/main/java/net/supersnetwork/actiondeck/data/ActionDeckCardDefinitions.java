@@ -3,11 +3,13 @@ package net.supersnetwork.actiondeck.data;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.mojang.serialization.JsonOps;
 import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
 import net.fabricmc.fabric.api.resource.SimpleSynchronousResourceReloadListener;
 import net.minecraft.resource.ResourceManager;
 import net.minecraft.resource.ResourceType;
 import net.minecraft.text.Text;
+import net.minecraft.text.TextCodecs;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.JsonHelper;
 import net.supersnetwork.actiondeck.ActionDeck;
@@ -23,11 +25,11 @@ import java.util.Optional;
 
 public final class ActionDeckCardDefinitions implements SimpleSynchronousResourceReloadListener {
 	public static final String CARD_ID_KEY = "action_deck:card_id";
-	public static final Identifier RELOAD_ID = new Identifier(ActionDeck.MOD_ID, "cards");
-	public static final Identifier DEFAULT_DECK = new Identifier(ActionDeck.MOD_ID, "unknown");
-	public static final Identifier DEFAULT_FRONT_TEXTURE = new Identifier(ActionDeck.MOD_ID, "item/card_generic_gold");
-	public static final Identifier DEFAULT_BACK_TEXTURE = new Identifier(ActionDeck.MOD_ID, "item/card_generic_gold_back");
-	public static final Identifier DEFAULT_ITEM_MODEL = new Identifier(ActionDeck.MOD_ID, "item/card");
+	public static final Identifier RELOAD_ID = Identifier.of(ActionDeck.MOD_ID, "cards");
+	public static final Identifier DEFAULT_DECK = Identifier.of(ActionDeck.MOD_ID, "unknown");
+	public static final Identifier DEFAULT_FRONT_TEXTURE = Identifier.of(ActionDeck.MOD_ID, "item/card_generic_gold");
+	public static final Identifier DEFAULT_BACK_TEXTURE = Identifier.of(ActionDeck.MOD_ID, "item/card_generic_gold_back");
+	public static final Identifier DEFAULT_ITEM_MODEL = Identifier.of(ActionDeck.MOD_ID, "item/card");
 
 	private static final String ROOT_PATH = "action_deck/cards";
 	private static final String CARD_FILE = "/card.json";
@@ -147,7 +149,7 @@ public final class ActionDeckCardDefinitions implements SimpleSynchronousResourc
 			throw new IOException("Card definitions must be in " + ROOT_PATH + "/<card_id>/card.json: " + resourceId);
 		}
 
-		return new Identifier(resourceId.getNamespace(), cardPath);
+		return Identifier.of(resourceId.getNamespace(), cardPath);
 	}
 
 	static Optional<Text> parseText(JsonObject json, String key) {
@@ -159,11 +161,11 @@ public final class ActionDeckCardDefinitions implements SimpleSynchronousResourc
 		if (element.isJsonPrimitive()) {
 			return Optional.of(Text.literal(element.getAsString()));
 		}
-		return Optional.of(Text.Serializer.fromJson(element));
+		return TextCodecs.CODEC.parse(JsonOps.INSTANCE, element).result();
 	}
 
 	static Optional<Identifier> parseIdentifier(JsonObject json, String key) {
-		return parseString(json, key).map(Identifier::new);
+		return parseString(json, key).map(Identifier::of);
 	}
 
 	static Optional<String> parseString(JsonObject json, String key) {

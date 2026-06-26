@@ -21,7 +21,7 @@ public class ActionDeckBlocks {
 		.nonOpaque()));
 
 	private static Block register(String id, Block block) {
-		Identifier identifier = new Identifier(ActionDeck.MOD_ID, id);
+		Identifier identifier = Identifier.of(ActionDeck.MOD_ID, id);
 		Registry.register(Registries.ITEM, identifier, new DeckStackItem(block, new Item.Settings()));
 		return Registry.register(Registries.BLOCK, identifier, block);
 	}

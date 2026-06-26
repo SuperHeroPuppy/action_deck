@@ -9,7 +9,7 @@ import net.supersnetwork.actiondeck.ActionDeck;
 public class ActionDeckBlockEntities {
 	public static final BlockEntityType<DeckStackBlockEntity> DECK_STACK = Registry.register(
 		Registries.BLOCK_ENTITY_TYPE,
-		new Identifier(ActionDeck.MOD_ID, "deck_stack"),
+		Identifier.of(ActionDeck.MOD_ID, "deck_stack"),
 		BlockEntityType.Builder.create(DeckStackBlockEntity::new, ActionDeckBlocks.DECK_STACK).build(null)
 	);
 

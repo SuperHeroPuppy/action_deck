@@ -1,11 +1,11 @@
 package net.supersnetwork.actiondeck.recipe;
 
-import net.minecraft.inventory.RecipeInputInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.recipe.RecipeSerializer;
 import net.minecraft.recipe.SpecialCraftingRecipe;
 import net.minecraft.recipe.book.CraftingRecipeCategory;
-import net.minecraft.registry.DynamicRegistryManager;
+import net.minecraft.recipe.input.CraftingRecipeInput;
+import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.util.Identifier;
 import net.minecraft.world.World;
 import net.supersnetwork.actiondeck.block.ActionDeckBlocks;
@@ -16,19 +16,19 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class DeckStackRecipe extends SpecialCraftingRecipe {
-	public DeckStackRecipe(Identifier id, CraftingRecipeCategory category) {
-		super(id, category);
+	public DeckStackRecipe(CraftingRecipeCategory category) {
+		super(category);
 	}
 
 	@Override
-	public boolean matches(RecipeInputInventory inventory, World world) {
+	public boolean matches(CraftingRecipeInput inventory, World world) {
 		int cards = 0;
 		int inputs = 0;
 		int decks = 0;
 		int faceDownDecks = 0;
 
-		for (int i = 0; i < inventory.size(); i++) {
-			ItemStack stack = inventory.getStack(i);
+		for (int i = 0; i < inventory.getSize(); i++) {
+			ItemStack stack = inventory.getStackInSlot(i);
 			if (stack.isEmpty()) {
 				continue;
 			}
@@ -64,7 +64,7 @@ public class DeckStackRecipe extends SpecialCraftingRecipe {
 	}
 
 	@Override
-	public ItemStack craft(RecipeInputInventory inventory, DynamicRegistryManager registryManager) {
+	public ItemStack craft(CraftingRecipeInput inventory, RegistryWrapper.WrapperLookup registryLookup) {
 		ItemStack singleDeck = getSingleDeckInput(inventory);
 		if (!singleDeck.isEmpty()) {
 			ItemStack result = new ItemStack(ActionDeckBlocks.DECK_STACK);
@@ -78,8 +78,8 @@ public class DeckStackRecipe extends SpecialCraftingRecipe {
 
 		List<Identifier> cards = new ArrayList<>();
 
-		for (int i = 0; i < inventory.size(); i++) {
-			ItemStack stack = inventory.getStack(i);
+		for (int i = 0; i < inventory.getSize(); i++) {
+			ItemStack stack = inventory.getStackInSlot(i);
 			if (stack.isEmpty()) {
 				continue;
 			}
@@ -96,11 +96,11 @@ public class DeckStackRecipe extends SpecialCraftingRecipe {
 		return result;
 	}
 
-	private static ItemStack getSingleDeckInput(RecipeInputInventory inventory) {
+	private static ItemStack getSingleDeckInput(CraftingRecipeInput inventory) {
 		ItemStack deckStack = ItemStack.EMPTY;
 
-		for (int i = 0; i < inventory.size(); i++) {
-			ItemStack stack = inventory.getStack(i);
+		for (int i = 0; i < inventory.getSize(); i++) {
+			ItemStack stack = inventory.getStackInSlot(i);
 			if (stack.isEmpty()) {
 				continue;
 			}

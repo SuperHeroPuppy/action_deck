@@ -1,11 +1,15 @@
 package net.supersnetwork.actiondeck.network;
 
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
-import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
+import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
+import net.minecraft.network.RegistryByteBuf;
 import net.minecraft.network.PacketByteBuf;
+import net.minecraft.network.codec.PacketCodec;
+import net.minecraft.network.packet.CustomPayload;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
+import net.minecraft.text.TextCodecs;
 import net.minecraft.util.Identifier;
 import net.supersnetwork.actiondeck.ActionDeck;
 import net.supersnetwork.actiondeck.data.ActionDeckCardDefinitions;
@@ -23,12 +27,14 @@ public final class ActionDeckNetworking {
 	 * The original channel used by Action Deck 1.0.4. Its deck payload does not
 	 * contain deck-pack data.
 	 */
-	public static final Identifier LEGACY_SYNC_DEFINITIONS = new Identifier(ActionDeck.MOD_ID, "sync_definitions");
+	public static final CustomPayload.Id<LegacyDefinitionsPayload> LEGACY_SYNC_DEFINITIONS =
+		new CustomPayload.Id<>(Identifier.of(ActionDeck.MOD_ID, "sync_definitions"));
 	/**
 	 * A separate channel is required because adding fields to the legacy stream
 	 * causes old clients to interpret text bytes as the next deck identifier.
 	 */
-	public static final Identifier SYNC_DEFINITIONS = new Identifier(ActionDeck.MOD_ID, "sync_definitions_v2");
+	public static final CustomPayload.Id<DefinitionsPayload> SYNC_DEFINITIONS =
+		new CustomPayload.Id<>(Identifier.of(ActionDeck.MOD_ID, "sync_definitions_v2"));
 
 	private static final int PROTOCOL_VERSION = 2;
 	private static final int MAX_CARDS = 16_384;
@@ -36,36 +42,59 @@ public final class ActionDeckNetworking {
 	private static final int MAX_CARDS_PER_DECK = 16_384;
 	private static final int MAX_TEXT_LENGTH = 16_384;
 	private static final int MAX_VALUE_LENGTH = 1_024;
+	private static boolean payloadTypesRegistered;
 
 	private ActionDeckNetworking() {
 	}
 
 	public static void registerServerHandlers() {
+		registerPayloadTypes();
 		ServerLifecycleEvents.SYNC_DATA_PACK_CONTENTS.register((player, joined) -> sendDefinitions(player));
+	}
+
+	public static void registerPayloadTypes() {
+		if (payloadTypesRegistered) {
+			return;
+		}
+		payloadTypesRegistered = true;
+		PayloadTypeRegistry.playS2C().register(SYNC_DEFINITIONS, DefinitionsPayload.CODEC);
+		PayloadTypeRegistry.playS2C().register(LEGACY_SYNC_DEFINITIONS, LegacyDefinitionsPayload.CODEC);
 	}
 
 	public static void sendDefinitions(ServerPlayerEntity player) {
 		if (ServerPlayNetworking.canSend(player, SYNC_DEFINITIONS)) {
-			ServerPlayNetworking.send(player, SYNC_DEFINITIONS, writeDefinitions());
+			ServerPlayNetworking.send(player, new DefinitionsPayload(currentDefinitions()));
 		} else if (ServerPlayNetworking.canSend(player, LEGACY_SYNC_DEFINITIONS)) {
 			// Keep 1.0.4 clients functional without sending the fields they cannot decode.
-			ServerPlayNetworking.send(player, LEGACY_SYNC_DEFINITIONS, writeLegacyDefinitions());
+			ServerPlayNetworking.send(player, new LegacyDefinitionsPayload(currentDefinitions()));
 		}
 	}
 
+	private static SyncedDefinitions currentDefinitions() {
+		return new SyncedDefinitions(List.copyOf(ActionDeckCardDefinitions.all()), List.copyOf(ActionDeckDeckDefinitions.all()));
+	}
+
 	public static PacketByteBuf writeDefinitions() {
-		PacketByteBuf buffer = PacketByteBufs.create();
-		buffer.writeVarInt(PROTOCOL_VERSION);
-		writeCards(buffer, ActionDeckCardDefinitions.all());
-		writeDecks(buffer, ActionDeckDeckDefinitions.all(), true);
+		PacketByteBuf buffer = new PacketByteBuf(io.netty.buffer.Unpooled.buffer());
+		writeDefinitions(buffer, currentDefinitions());
 		return buffer;
 	}
 
+	private static void writeDefinitions(PacketByteBuf buffer, SyncedDefinitions definitions) {
+		buffer.writeVarInt(PROTOCOL_VERSION);
+		writeCards(buffer, definitions.cards());
+		writeDecks(buffer, definitions.decks(), true);
+	}
+
 	public static PacketByteBuf writeLegacyDefinitions() {
-		PacketByteBuf buffer = PacketByteBufs.create();
-		writeCards(buffer, ActionDeckCardDefinitions.all());
-		writeDecks(buffer, ActionDeckDeckDefinitions.all(), false);
+		PacketByteBuf buffer = new PacketByteBuf(io.netty.buffer.Unpooled.buffer());
+		writeLegacyDefinitions(buffer, currentDefinitions());
 		return buffer;
+	}
+
+	private static void writeLegacyDefinitions(PacketByteBuf buffer, SyncedDefinitions definitions) {
+		writeCards(buffer, definitions.cards());
+		writeDecks(buffer, definitions.decks(), false);
 	}
 
 	public static SyncedDefinitions readDefinitions(PacketByteBuf buffer) {
@@ -165,12 +194,11 @@ public final class ActionDeckNetworking {
 	}
 
 	private static void writeText(PacketByteBuf buffer, Text text) {
-		buffer.writeString(Text.Serializer.toJson(text));
+		TextCodecs.PACKET_CODEC.encode(buffer, text);
 	}
 
 	private static Text readText(PacketByteBuf buffer) {
-		Text text = Text.Serializer.fromJson(buffer.readString(MAX_TEXT_LENGTH));
-		return text == null ? Text.literal("") : text;
+		return TextCodecs.PACKET_CODEC.decode(buffer);
 	}
 
 	private static void writeOptionalText(PacketByteBuf buffer, Optional<Text> text) {
@@ -211,5 +239,29 @@ public final class ActionDeckNetworking {
 	}
 
 	public record SyncedDefinitions(List<CardDefinition> cards, List<DeckDefinition> decks) {
+	}
+
+	public record DefinitionsPayload(SyncedDefinitions definitions) implements CustomPayload {
+		public static final PacketCodec<RegistryByteBuf, DefinitionsPayload> CODEC = PacketCodec.ofStatic(
+			(buffer, payload) -> writeDefinitions(buffer, payload.definitions()),
+			buffer -> new DefinitionsPayload(readDefinitions(buffer))
+		);
+
+		@Override
+		public Id<? extends CustomPayload> getId() {
+			return SYNC_DEFINITIONS;
+		}
+	}
+
+	public record LegacyDefinitionsPayload(SyncedDefinitions definitions) implements CustomPayload {
+		public static final PacketCodec<RegistryByteBuf, LegacyDefinitionsPayload> CODEC = PacketCodec.ofStatic(
+			(buffer, payload) -> writeLegacyDefinitions(buffer, payload.definitions()),
+			buffer -> new LegacyDefinitionsPayload(readLegacyDefinitions(buffer))
+		);
+
+		@Override
+		public Id<? extends CustomPayload> getId() {
+			return LEGACY_SYNC_DEFINITIONS;
+		}
 	}
 }
